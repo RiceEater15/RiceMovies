@@ -15,21 +15,6 @@
             color: white;
         }
 
-        .video-container {
-            position: relative;
-            width: 100%;
-            height: 100vh;
-        }
-
-        iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
         .search-container {
             position: relative;
             width: 100%;
@@ -119,16 +104,10 @@
 
     <div class="movie-list" id="movieList"></div>
 
-    <div class="video-container" id="videoContainer" style="display: none;">
-        <iframe id="movieIframe" src="" allowfullscreen></iframe>
-    </div>
-
     <script>
         const apiKey = '1070730380f5fee0d87cf0382670b255';
         const searchInput = document.getElementById('searchInput');
         const movieList = document.getElementById('movieList');
-        const videoContainer = document.getElementById('videoContainer');
-        const movieIframe = document.getElementById('movieIframe');
         const closeBannerButton = document.getElementById('closeBanner');
 
         // Close banner functionality
@@ -173,19 +152,10 @@
             });
         }
 
-        // Open selected movie and display it in iframe
-        async function openMovie(movieId) {
-            const url = `https://api.themoviedb.org/3/movie/${movieId}?api_key=${apiKey}&language=en-US`;
-            try {
-                const response = await fetch(url);
-                const movie = await response.json();
-                const movieUrl = `https://embed.su/embed/movie/${movie.id}`;
-                movieIframe.src = movieUrl;
-                videoContainer.style.display = 'block';
-                window.scrollTo(0, 0);
-            } catch (error) {
-                console.error('Error fetching movie details:', error);
-            }
+        // Open selected movie in a new tab
+        function openMovie(movieId) {
+            const movieUrl = `https://www.themoviedb.org/movie/${movieId}`;
+            window.open(movieUrl, '_blank');
         }
 
         // Event listener for the search input
