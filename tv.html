@@ -86,16 +86,15 @@
 
         function displayShows(shows) {
             showList.innerHTML = '';
-            if (!shows || shows.length === 0) {
+            if (shows.length === 0) {
                 showList.innerHTML = '<p>No shows found. Please try another search.</p>';
                 return;
             }
             shows.forEach(show => {
                 const showCard = document.createElement('div');
                 showCard.classList.add('show-card');
-                const posterPath = show.poster_path ? `https://image.tmdb.org/t/p/w500${show.poster_path}` : 'https://via.placeholder.com/200x300?text=No+Image';
                 showCard.innerHTML = `
-                    <img src="${posterPath}" alt="${show.name}" />
+                    <img src="${show.poster_path ? 'https://image.tmdb.org/t/p/w500' + show.poster_path : 'https://via.placeholder.com/200x300'}" alt="${show.name}" />
                     <h5>${show.name}</h5>
                 `;
                 showCard.addEventListener('click', () => openShow(show.id));
@@ -104,8 +103,14 @@
         }
 
         function openShow(showId) {
-            const showUrl = `https://embed.su/embed/tv/${showId}`;
-            window.open(showUrl, '_blank');
+            const season = prompt("Enter season number:");
+            const episode = prompt("Enter episode number:");
+            if (season && episode) {
+                const showUrl = `https://embed.su/embed/tv/${showId}/${season}/${episode}`;
+                window.open(showUrl, '_blank');
+            } else {
+                alert("Season and episode must be provided!");
+            }
         }
 
         searchInput.addEventListener('input', (e) => {
