@@ -122,9 +122,11 @@
 
         // Open movie in new tab under your domain
         function openMovie(movieId) {
-            const movieUrl = `movie.html?id=${movieId}`; // Pass the movie ID in the URL
-            window.open(movieUrl, '_blank');  // Open the movie page in a new tab
+            const movieUrl = `https://your-site.vercel.app/movie.html?id=${movieId}`;  // Replace with your Vercel domain
+        window.open(movieUrl, '_blank');
         }
+        
+
 
         // Event listener for the search input
         searchInput.addEventListener('input', (e) => {
