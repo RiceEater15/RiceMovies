@@ -11,45 +11,64 @@
       color: white;
     }
 
-    .movie-info {
-      margin: 20px auto;
-      max-width: 900px;
+    .back-button {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background-color: purple;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 5px;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      z-index: 10;
+    }
+
+    .content-wrapper {
       display: flex;
       flex-wrap: wrap;
-      gap: 20px;
-      align-items: center;
+      margin-top: 80px;
+      gap: 30px;
       justify-content: center;
     }
 
-    .movie-info img {
-      width: 250px;
-      border-radius: 10px;
+    .movie-details {
+      max-width: 400px;
     }
 
-    .movie-details {
+    .movie-details img {
+      width: 100%;
+      border-radius: 10px;
+      margin-bottom: 15px;
+    }
+
+    .video-wrapper {
       max-width: 600px;
+      flex: 1;
     }
 
     iframe {
       width: 100%;
-      height: 500px;
+      height: 400px;
       border: none;
       border-radius: 10px;
-      margin-top: 20px;
+      margin-top: 10px;
     }
 
     .source-buttons {
-      margin: 20px auto;
-      text-align: center;
+      margin-top: 15px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
     }
 
     .source-buttons button {
-      margin: 5px;
-      padding: 10px 20px;
-      border-radius: 5px;
-      border: none;
       background-color: #444;
       color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
       cursor: pointer;
     }
 
@@ -60,20 +79,27 @@
 </head>
 <body>
 
-  <div class="container text-center my-4">
-    <h1>Watch Movie</h1>
-  </div>
+  <button class="back-button" onclick="history.back()">← Back</button>
 
-  <div class="movie-info" id="movieInfo"></div>
+  <div class="container">
+    <div class="content-wrapper">
+      
+      <!-- Movie Details -->
+      <div class="movie-details" id="movieInfo">
+        <!-- JS will populate this -->
+      </div>
 
-  <div class="source-buttons" id="sourceButtons">
-    <button data-source="embed.su">Embed.su</button>
-    <button data-source="multiembed.mov">MultiEmbed</button>
-    <button data-source="2embed.cc">2Embed</button>
-  </div>
-
-  <div class="container" id="playerContainer">
-    <iframe id="player" allowfullscreen></iframe>
+      <!-- Video Player + Sources -->
+      <div class="video-wrapper">
+        <h2 id="movieTitle"></h2>
+        <iframe id="player" allowfullscreen></iframe>
+        <div class="source-buttons" id="sourceButtons">
+          <button data-source="embed.su">Embed.su</button>
+          <button data-source="multiembed.mov">MultiEmbed</button>
+          <button data-source="2embed.cc">2Embed</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -84,18 +110,21 @@
     const overview = params.get("overview");
     const release = params.get("release");
 
-    const player = document.getElementById("player");
     const movieInfo = document.getElementById("movieInfo");
+    const player = document.getElementById("player");
+    const movieTitle = document.getElementById("movieTitle");
+
+    movieTitle.textContent = title;
 
     movieInfo.innerHTML = `
       <img src="${poster}" alt="${title}" />
-      <div class="movie-details">
-        <h2>${title}</h2>
-        <p><strong>Release Date:</strong> ${release || 'Unknown'}</p>
-        <p>${overview || 'No description available.'}</p>
-      </div>
+      <h3>${title}</h3>
+      <p><strong>Release Date:</strong> ${release || 'Unknown'}</p>
+      <p><strong>Overview:</strong> ${overview || 'No overview available.'}</p>
+      <div id="actors"><em>Loading cast...</em></div>
     `;
 
+    // Embed source links
     const sources = {
       "embed.su": `https://embed.su/embed/movie/${movieId}`,
       "multiembed.mov": `https://multiembed.mov/directstream.php?video_id=${movieId}&tmdb=1`,
@@ -112,8 +141,18 @@
       });
     });
 
-    // Load default source
-    buttons[0].click();
+    buttons[0].click(); // Default source
+
+    // Fetch actor data from TMDB
+    fetch(`https://api.themoviedb.org/3/movie/${movieId}/credits?api_key=1070730380f5fee0d87cf0382670b255`)
+      .then(res => res.json())
+      .then(data => {
+        const cast = data.cast?.slice(0, 5).map(actor => actor.name).join(', ') || 'No actors found.';
+        document.getElementById("actors").innerHTML = `<strong>Cast:</strong> ${cast}`;
+      })
+      .catch(() => {
+        document.getElementById("actors").textContent = "Failed to load cast.";
+      });
   </script>
 
 </body>
