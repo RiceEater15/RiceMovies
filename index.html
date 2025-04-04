@@ -122,11 +122,9 @@
 
         // Open movie in new tab under your domain
         function openMovie(movieId) {
-            const movieUrl = `https://ricemovies.vercel.app/movie.html?id=${movieId}`;  // Replace with your Vercel domain
-        window.open(movieUrl, '_blank');
+            const movieUrl = `https://ricemovies.vercel.app/movie.html?id=${movieId}`;
+            window.open(movieUrl, '_blank');
         }
-        
-
 
         // Event listener for the search input
         searchInput.addEventListener('input', (e) => {
