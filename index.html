@@ -306,68 +306,74 @@ iframe {
     <div class="movie-list" id="movieList"></div>
 
     <script>
-        const apiKey = '1070730380f5fee0d87cf0382670b255';
-        const searchInput = document.getElementById('searchInput');
-        const movieList = document.getElementById('movieList');
-        const closeBannerButton = document.getElementById('closeBanner');
+       const apiKey = '1070730380f5fee0d87cf0382670b255';
+const searchInput = document.getElementById('searchInput');
+const movieList = document.getElementById('movieList');
 
-        // Close banner functionality
-        if (closeBannerButton) {
-            closeBannerButton.addEventListener('click', function() {
-                const banner = document.getElementById('donationBanner');
-                if (banner) {
-                    banner.style.display = 'none';
-                }
-            });
+document.addEventListener("DOMContentLoaded", fetchPopularMovies);
+
+// Fetch and display popular movies
+async function fetchPopularMovies() {
+    const url = `https://api.themoviedb.org/3/movie/popular?api_key=${apiKey}&language=en-US&page=1`;
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        displayMovies(data.results);
+    } catch (error) {
+        console.error('Error fetching popular movies:', error);
+    }
+}
+
+// Fetch movies based on search query
+async function searchMovies(query) {
+    const url = `https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&query=${query}&language=en-US&page=1`;
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        displayMovies(data.results);
+    } catch (error) {
+        console.error('Error fetching movies:', error);
+    }
+}
+
+// Display movies in the movie list
+function displayMovies(movies) {
+    movieList.innerHTML = '';
+    if (!movies || movies.length === 0) {
+        movieList.innerHTML = '<p>No movies found. Please try another search.</p>';
+        return;
+    }
+
+    movies.forEach(movie => {
+        if (movie.poster_path) { // Only show movies with posters
+            const movieCard = document.createElement('div');
+            movieCard.classList.add('movie-card');
+            movieCard.innerHTML = `
+                <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" alt="${movie.title}" />
+                <h5>${movie.title}</h5>
+            `;
+            movieCard.addEventListener('click', () => openMovie(movie.id));
+            movieList.appendChild(movieCard);
         }
+    });
+}
 
-        // Fetch movies based on search query
-        async function searchMovies(query) {
-            const url = `https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&query=${query}&language=en-US&page=1`;
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-                displayMovies(data.results);
-            } catch (error) {
-                console.error('Error fetching movies:', error);
-            }
-        }
+// Open selected movie on multi-embed service in a new tab
+function openMovie(movieId) {
+    const movieUrl = `https://embed.su/embed/movie/${movieId}`;
+    window.open(movieUrl, '_blank');
+}
 
-        // Display movie results
-        function displayMovies(movies) {
-            movieList.innerHTML = '';
-            if (movies.length === 0) {
-                movieList.innerHTML = '<p>No movies found. Please try another search.</p>';
-                return;
-            }
+// Search and toggle between search results and popular movies
+searchInput.addEventListener('input', (e) => {
+    const query = e.target.value.trim();
+    if (query) {
+        searchMovies(query);
+    } else {
+        fetchPopularMovies(); // Show default movies when search is empty
+    }
+});
 
-            movies.forEach(movie => {
-                const movieCard = document.createElement('div');
-                movieCard.classList.add('movie-card');
-                movieCard.innerHTML = `
-                    <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" alt="${movie.title}" />
-                    <h5>${movie.title}</h5>
-                `;
-                movieCard.addEventListener('click', () => openMovie(movie.id));
-                movieList.appendChild(movieCard);
-            });
-        }
-
-        // Open selected movie on multi-embed service in a new tab
-        function openMovie(movieId) {
-            const movieUrl = `https://embed.su/embed/movie/${movieId}`;
-            window.open(movieUrl, '_blank');
-        }
-
-        // Event listener for the search input
-        searchInput.addEventListener('input', (e) => {
-            const query = e.target.value.trim();
-            if (query) {
-                searchMovies(query);
-            } else {
-                movieList.innerHTML = '';
-            }
-        });
     </script>
 </body>
 </html>
