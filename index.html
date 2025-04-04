@@ -122,6 +122,76 @@ body {
         display: none;
     }
 }
+        .dropdown {
+    font-family: 'Rajdhani', sans-serif;
+}
+
+.dropdown-content a {
+    display: flex;
+    align-items: center;
+}
+
+.dropdown-content i {
+    margin-right: 8px;
+    font-size: 16px;
+}
+
+.hamburger-menu {
+    position: relative;
+}
+
+.menu-content {
+    display: none; 
+    flex-direction: column; 
+    background-color: white; 
+    border: 1px solid #ccc; 
+    padding: 10px; 
+    position: absolute; 
+    z-index: 1000; 
+}
+
+.hamburger-menu.active .menu-content {
+    display: flex; 
+}
+
+.menu-content a {
+    display: flex; 
+    align-items: center; 
+    padding: 8px 10px; 
+    text-decoration: none; 
+    color: black; 
+}
+
+.menu-content i {
+    margin-right: 8px; 
+    font-size: 16px; 
+}
+
+.nav-link.active {
+    color: red; 
+}
+/* Animation for hamburger menu */
+.hamburger.active span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 6px);
+}
+
+.hamburger.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(5px, -6px);
+}
+iframe {
+    background-color: #800000;
+}
+.logo-img {
+    width:10%;
+    height:15%;
+    position: relative;
+    align-items: center;
+    border-radius: 25px;
+}
 
         .search-container {
             position: relative;
