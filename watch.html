@@ -1,121 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
   <title>Watch Movie</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
-      background-color: #000;
-      color: #fff;
-      padding: 20px;
+      background-color: #121212;
+      color: white;
     }
 
-    h1 {
-      font-size: 2rem;
-      margin-bottom: 10px;
+    .movie-info {
+      margin: 20px auto;
+      max-width: 900px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .movie-info img {
+      width: 250px;
+      border-radius: 10px;
+    }
+
+    .movie-details {
+      max-width: 600px;
     }
 
     iframe {
       width: 100%;
-      max-width: 900px;
       height: 500px;
       border: none;
-      margin: 20px 0;
+      border-radius: 10px;
+      margin-top: 20px;
     }
 
-    .btn-group .btn {
-      margin: 0 5px;
+    .source-buttons {
+      margin: 20px auto;
+      text-align: center;
     }
 
-    .btn.active {
-      background-color: #007bff !important;
-      color: #fff;
+    .source-buttons button {
+      margin: 5px;
+      padding: 10px 20px;
+      border-radius: 5px;
+      border: none;
+      background-color: #444;
+      color: white;
+      cursor: pointer;
     }
 
-    .movie-details {
-      max-width: 900px;
-      margin: 0 auto;
-      text-align: left;
-    }
-
-    .movie-details p {
-      margin: 0.25rem 0;
+    .source-buttons button.active {
+      background-color: #007bff;
     }
   </style>
 </head>
 <body>
-  <h1 id="movieTitle">Loading...</h1>
 
-  <div class="btn-group" role="group" aria-label="Embed Sources">
-    <button class="btn btn-outline-light" onclick="switchSource('embed')" id="btn-embed">Embed.su</button>
-    <button class="btn btn-outline-light" onclick="switchSource('multi')" id="btn-multi">MultiEmbed</button>
-    <button class="btn btn-outline-light" onclick="switchSource('2embed')" id="btn-2embed">2Embed</button>
+  <div class="container text-center my-4">
+    <h1>Watch Movie</h1>
   </div>
 
-  <iframe id="movieFrame" allowfullscreen></iframe>
+  <div class="movie-info" id="movieInfo"></div>
 
-  <div class="movie-details" id="movieDetails">
-    <p><strong>Release Date:</strong> <span id="releaseDate"></span></p>
-    <p><strong>Overview:</strong> <span id="overview"></span></p>
+  <div class="source-buttons" id="sourceButtons">
+    <button data-source="embed.su">Embed.su</button>
+    <button data-source="multiembed.mov">MultiEmbed</button>
+    <button data-source="2embed.cc">2Embed</button>
+  </div>
+
+  <div class="container" id="playerContainer">
+    <iframe id="player" allowfullscreen></iframe>
   </div>
 
   <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const movieId = urlParams.get("id");
-    const apiKey = "1070730380f5fee0d87cf0382670b255";
+    const params = new URLSearchParams(window.location.search);
+    const movieId = params.get("id");
+    const title = params.get("title");
+    const poster = params.get("poster");
+    const overview = params.get("overview");
+    const release = params.get("release");
 
-    const iframe = document.getElementById("movieFrame");
-    const movieTitle = document.getElementById("movieTitle");
-    const releaseDate = document.getElementById("releaseDate");
-    const overview = document.getElementById("overview");
+    const player = document.getElementById("player");
+    const movieInfo = document.getElementById("movieInfo");
 
-    const buttons = {
-      embed: document.getElementById("btn-embed"),
-      multi: document.getElementById("btn-multi"),
-      "2embed": document.getElementById("btn-2embed")
+    movieInfo.innerHTML = `
+      <img src="${poster}" alt="${title}" />
+      <div class="movie-details">
+        <h2>${title}</h2>
+        <p><strong>Release Date:</strong> ${release || 'Unknown'}</p>
+        <p>${overview || 'No description available.'}</p>
+      </div>
+    `;
+
+    const sources = {
+      "embed.su": `https://embed.su/embed/movie/${movieId}`,
+      "multiembed.mov": `https://multiembed.mov/directstream.php?video_id=${movieId}&tmdb=1`,
+      "2embed.cc": `https://www.2embed.cc/embed/${movieId}`
     };
 
-    const switchSource = (source) => {
-      Object.values(buttons).forEach(btn => btn.classList.remove("active"));
-      buttons[source].classList.add("active");
+    const buttons = document.querySelectorAll("#sourceButtons button");
+    buttons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        buttons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        const source = btn.getAttribute("data-source");
+        player.src = sources[source];
+      });
+    });
 
-      let embedUrl;
-      switch (source) {
-        case "embed":
-          embedUrl = `https://embed.su/embed/movie/${movieId}`;
-          break;
-        case "multi":
-          embedUrl = `https://multiembed.mov/?video_id=${movieId}&tmdb=1`;
-          break;
-        case "2embed":
-          embedUrl = `https://www.2embed.cc/embed/${movieId}`;
-          break;
-      }
-
-      iframe.src = embedUrl;
-    };
-
-    const fetchMovieDetails = async () => {
-      try {
-        const response = await fetch(`https://api.themoviedb.org/3/movie/${movieId}?api_key=${apiKey}`);
-        const data = await response.json();
-        movieTitle.textContent = data.title || "Movie";
-        releaseDate.textContent = data.release_date || "N/A";
-        overview.textContent = data.overview || "No overview available.";
-      } catch (error) {
-        console.error("Failed to fetch movie details:", error);
-        movieTitle.textContent = "Movie not found";
-      }
-    };
-
-    if (movieId) {
-      fetchMovieDetails();
-      switchSource("embed");
-    } else {
-      movieTitle.textContent = "No movie ID provided";
-    }
+    // Load default source
+    buttons[0].click();
   </script>
+
 </body>
 </html>
