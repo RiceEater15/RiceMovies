@@ -1,0 +1,5 @@
+{
+  "routes": [
+    { "src": "/movie.html", "dest": "/movie.html" }
+  ]
+}
