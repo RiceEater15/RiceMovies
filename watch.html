@@ -1,0 +1,47 @@
+<!-- watch.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Watch Movie</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background: #000; color: #fff; text-align: center; padding: 20px; }
+    iframe { width: 100%; max-width: 900px; height: 500px; border: none; margin-top: 20px; }
+    .btn-group { margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h1 id="movieTitle">Loading...</h1>
+
+  <div class="btn-group">
+    <button class="btn btn-primary" onclick="loadSource('multiembed')">MultiEmbed</button>
+    <button class="btn btn-secondary" onclick="loadSource('2embed')">2Embed</button>
+  </div>
+
+  <iframe id="playerFrame" allowfullscreen></iframe>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const movieId = urlParams.get('id');
+    const playerFrame = document.getElementById('playerFrame');
+    const movieTitle = document.getElementById('movieTitle');
+
+    if (!movieId) {
+      movieTitle.textContent = 'Movie not found';
+    } else {
+      movieTitle.textContent = `Now Playing: Movie ID ${movieId}`;
+      loadSource('multiembed');
+    }
+
+    function loadSource(source) {
+      if (source === 'multiembed') {
+        playerFrame.src = `https://multiembed.mov/?video_id=${movieId}&tmdb=1`;
+      } else if (source === '2embed') {
+        playerFrame.src = `https://www.2embed.cc/embed/${movieId}`;
+      }
+    }
+  </script>
+</body>
+</html>
