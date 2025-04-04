@@ -32,6 +32,97 @@ body {
     display: flex;
     flex-direction: column;
 }
+        .navbar {
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.desktop-logo {
+    display: none; 
+    height: 50px;
+    width: 50px;
+    margin-right: 15px; 
+    object-fit: cover; 
+    order: -1; 
+    border-radius: 50%; 
+    border: 1px solid 797979; 
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3); 
+    transition: transform 0.3s ease, box-shadow 0.3s ease; 
+}
+
+.desktop-logo:hover {
+    transform: scale(1.1); 
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.5); 
+}
+
+.navbar-toggler {
+    border: none;
+}
+
+.navbar-toggler-icon {
+    background-color: white;
+}
+
+.nav-title {
+    font-weight: bold;
+    margin-right: 3rem;
+    flex-shrink: 0;
+    z-index: 100;
+}
+
+.nav-title .title-full {
+    display: none;
+}
+
+.nav-title .title-short {
+    display: inline-block;
+}
+
+.navbar-nav {
+    display: flex;
+    gap: 1rem;
+}
+
+.navbar-nav .nav-item .nav-link {
+    color: white;
+    text-decoration: none;
+}
+
+.navbar .navbar-collapse {
+    justify-content: flex-end;
+}
+
+.navbar a i {
+    display: none;
+    transition: opacity 0.3s ease;
+}
+
+@media screen and (min-width: 768px) {
+    .navbar-nav {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .desktop-logo {
+        display: block;
+    }
+
+    .navbar a i {
+        display: inline-block;
+        opacity: 1;
+    }
+
+    .nav-title .title-full {
+        display: inline-block;
+    }
+    .nav-title .title-short {
+        display: none;
+    }
+}
+
         .search-container {
             position: relative;
             width: 100%;
@@ -109,11 +200,35 @@ body {
         }
     </style>
 </head>
+    <header>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <img src="Logo.jpeg" class="desktop-logo" alt="RiceHub Logo">
+        <img src="Logo.jpeg" class="mobile-logo" alt="RiceHub Logo">
+        <span class="nav-title">
+            <span class="title-short">RHV2</span>
+            <span class="title-full">RiceHub V2</span>
+        </span>
+
+        <div class="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        
+        <div class="navbar-links">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link active" href="index.html">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="tv.html">IPAs</a>
+                
+            </ul>
+        </div>
+    </nav>
+    </header>
 <body>
-    <div id="donationBanner">
-        <p>Support us! Donate to keep the site running!</p>
-        <button id="closeBanner">Close</button>
-    </div>
+   
 
     <div class="search-container">
         <input type="text" id="searchInput" placeholder="Search for movies or TV shows" />
