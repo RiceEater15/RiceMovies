@@ -1,46 +1,120 @@
-<!-- watch.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Watch Movie</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
   <style>
-    body { background: #000; color: #fff; text-align: center; padding: 20px; }
-    iframe { width: 100%; max-width: 900px; height: 500px; border: none; margin-top: 20px; }
-    .btn-group { margin-top: 20px; }
+    body {
+      background-color: #000;
+      color: #fff;
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    iframe {
+      width: 100%;
+      max-width: 900px;
+      height: 500px;
+      border: none;
+      margin: 20px 0;
+    }
+
+    .btn-group .btn {
+      margin: 0 5px;
+    }
+
+    .btn.active {
+      background-color: #007bff !important;
+      color: #fff;
+    }
+
+    .movie-details {
+      max-width: 900px;
+      margin: 0 auto;
+      text-align: left;
+    }
+
+    .movie-details p {
+      margin: 0.25rem 0;
+    }
   </style>
 </head>
 <body>
   <h1 id="movieTitle">Loading...</h1>
 
-  <div class="btn-group">
-    <button class="btn btn-primary" onclick="loadSource('multiembed')">MultiEmbed</button>
-    <button class="btn btn-secondary" onclick="loadSource('2embed')">2Embed</button>
+  <div class="btn-group" role="group" aria-label="Embed Sources">
+    <button class="btn btn-outline-light" onclick="switchSource('embed')" id="btn-embed">Embed.su</button>
+    <button class="btn btn-outline-light" onclick="switchSource('multi')" id="btn-multi">MultiEmbed</button>
+    <button class="btn btn-outline-light" onclick="switchSource('2embed')" id="btn-2embed">2Embed</button>
   </div>
 
-  <iframe id="playerFrame" allowfullscreen></iframe>
+  <iframe id="movieFrame" allowfullscreen></iframe>
+
+  <div class="movie-details" id="movieDetails">
+    <p><strong>Release Date:</strong> <span id="releaseDate"></span></p>
+    <p><strong>Overview:</strong> <span id="overview"></span></p>
+  </div>
 
   <script>
     const urlParams = new URLSearchParams(window.location.search);
-    const movieId = urlParams.get('id');
-    const playerFrame = document.getElementById('playerFrame');
-    const movieTitle = document.getElementById('movieTitle');
+    const movieId = urlParams.get("id");
+    const apiKey = "1070730380f5fee0d87cf0382670b255";
 
-    if (!movieId) {
-      movieTitle.textContent = 'Movie not found';
-    } else {
-      movieTitle.textContent = `Now Playing: Movie ID ${movieId}`;
-      loadSource('multiembed');
-    }
+    const iframe = document.getElementById("movieFrame");
+    const movieTitle = document.getElementById("movieTitle");
+    const releaseDate = document.getElementById("releaseDate");
+    const overview = document.getElementById("overview");
 
-    function loadSource(source) {
-      if (source === 'multiembed') {
-        playerFrame.src = `https://multiembed.mov/?video_id=${movieId}&tmdb=1`;
-      } else if (source === '2embed') {
-        playerFrame.src = `https://www.2embed.cc/embed/${movieId}`;
+    const buttons = {
+      embed: document.getElementById("btn-embed"),
+      multi: document.getElementById("btn-multi"),
+      "2embed": document.getElementById("btn-2embed")
+    };
+
+    const switchSource = (source) => {
+      Object.values(buttons).forEach(btn => btn.classList.remove("active"));
+      buttons[source].classList.add("active");
+
+      let embedUrl;
+      switch (source) {
+        case "embed":
+          embedUrl = `https://embed.su/embed/movie/${movieId}`;
+          break;
+        case "multi":
+          embedUrl = `https://multiembed.mov/?video_id=${movieId}&tmdb=1`;
+          break;
+        case "2embed":
+          embedUrl = `https://www.2embed.cc/embed/${movieId}`;
+          break;
       }
+
+      iframe.src = embedUrl;
+    };
+
+    const fetchMovieDetails = async () => {
+      try {
+        const response = await fetch(`https://api.themoviedb.org/3/movie/${movieId}?api_key=${apiKey}`);
+        const data = await response.json();
+        movieTitle.textContent = data.title || "Movie";
+        releaseDate.textContent = data.release_date || "N/A";
+        overview.textContent = data.overview || "No overview available.";
+      } catch (error) {
+        console.error("Failed to fetch movie details:", error);
+        movieTitle.textContent = "Movie not found";
+      }
+    };
+
+    if (movieId) {
+      fetchMovieDetails();
+      switchSource("embed");
+    } else {
+      movieTitle.textContent = "No movie ID provided";
     }
   </script>
 </body>
