@@ -73,6 +73,17 @@
         const searchInput = document.getElementById('searchInput');
         const showList = document.getElementById('showList');
 
+        async function fetchPopularShows() {
+            const url = `https://api.themoviedb.org/3/tv/popular?api_key=${apiKey}&language=en-US&page=1`;
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                displayShows(data.results);
+            } catch (error) {
+                console.error('Error fetching popular shows:', error);
+            }
+        }
+
         async function searchShows(query) {
             const url = `https://api.themoviedb.org/3/search/tv?api_key=${apiKey}&query=${query}&language=en-US&page=1`;
             try {
@@ -86,15 +97,16 @@
 
         function displayShows(shows) {
             showList.innerHTML = '';
-            if (shows.length === 0) {
+            if (!shows || shows.length === 0) {
                 showList.innerHTML = '<p>No shows found. Please try another search.</p>';
                 return;
             }
             shows.forEach(show => {
                 const showCard = document.createElement('div');
                 showCard.classList.add('show-card');
+                const posterPath = show.poster_path ? `https://image.tmdb.org/t/p/w500${show.poster_path}` : 'https://via.placeholder.com/200x300?text=No+Image';
                 showCard.innerHTML = `
-                    <img src="${show.poster_path ? 'https://image.tmdb.org/t/p/w500' + show.poster_path : 'https://via.placeholder.com/200x300'}" alt="${show.name}" />
+                    <img src="${posterPath}" alt="${show.name}" />
                     <h5>${show.name}</h5>
                 `;
                 showCard.addEventListener('click', () => openShow(show.id));
@@ -103,13 +115,11 @@
         }
 
         function openShow(showId) {
-            const season = prompt("Enter season number:");
-            const episode = prompt("Enter episode number:");
+            const season = prompt('Enter season number:');
+            const episode = prompt('Enter episode number:');
             if (season && episode) {
                 const showUrl = `https://embed.su/embed/tv/${showId}/${season}/${episode}`;
                 window.open(showUrl, '_blank');
-            } else {
-                alert("Season and episode must be provided!");
             }
         }
 
@@ -118,9 +128,11 @@
             if (query) {
                 searchShows(query);
             } else {
-                showList.innerHTML = '';
+                fetchPopularShows();
             }
         });
+
+        fetchPopularShows();
     </script>
 </body>
 </html>
