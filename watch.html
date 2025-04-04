@@ -11,34 +11,20 @@
       color: white;
     }
 
-    .back-button {
-      position: absolute;
-      top: 20px;
-      right: 20px;
+    .btn-purple {
       background-color: purple;
       color: white;
-      padding: 10px 15px;
-      border-radius: 5px;
       border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
       font-weight: bold;
-      cursor: pointer;
-      z-index: 10;
+      text-decoration: none;
+      transition: background 0.3s ease;
     }
-    .btn-purple {
-  background-color: purple;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-weight: bold;
-  text-decoration: none;
-  transition: background 0.3s ease;
-}
 
-.btn-purple:hover {
-  background-color: #a020f0;
-}
-
+    .btn-purple:hover {
+      background-color: #a020f0;
+    }
 
     .content-wrapper {
       display: flex;
@@ -94,10 +80,10 @@
 </head>
 <body>
 
+  <!-- Back Button -->
   <a href="Test.html" class="btn btn-purple position-absolute top-0 end-0 m-3">
-  ← Back to Search
-</a>
-
+    ← Back to Search
+  </a>
 
   <div class="container">
     <div class="content-wrapper">
@@ -115,7 +101,7 @@
           <button data-source="embed.su">Embed.su</button>
           <button data-source="multiembed.mov">MultiEmbed</button>
           <button data-source="2embed.cc">2Embed</button>
-          <button data-source="moviesapi.to">MoviesAPI</button>
+          <button data-source="moviesapi.to">MoviesAPI.to</button>
         </div>
       </div>
     </div>
@@ -143,11 +129,10 @@
       <div id="actors"><em>Loading cast...</em></div>
     `;
 
-    // Embed source links
     const sources = {
       "embed.su": `https://embed.su/embed/movie/${movieId}`,
       "multiembed.mov": `https://multiembed.mov/directstream.php?video_id=${movieId}&tmdb=1`,
-      "2embed.cc": `https://www.2embed.cc/embed/${movieId}`
+      "2embed.cc": `https://www.2embed.cc/embed/${movieId}`,
       "moviesapi.to": `https://moviesapi.to/movie/${movieId}`
     };
 
@@ -161,9 +146,9 @@
       });
     });
 
-    buttons[0].click(); // Default source
+    buttons[0].click(); // Load first source by default
 
-    // Fetch actor data from TMDB
+    // Fetch actors
     fetch(`https://api.themoviedb.org/3/movie/${movieId}/credits?api_key=1070730380f5fee0d87cf0382670b255`)
       .then(res => res.json())
       .then(data => {
