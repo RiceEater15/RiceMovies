@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TV Show Search</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #121212;
+      color: white;
+      padding: 20px;
+    }
+    .card {
+      background-color: #1e1e1e;
+      border: none;
+    }
+    .card img {
+      border-top-left-radius: 0.5rem;
+      border-top-right-radius: 0.5rem;
+    }
+    .btn-purple {
+      background-color: purple;
+      color: white;
+      border: none;
+    }
+    .btn-purple:hover {
+      background-color: #a020f0;
+    }
+  </style>
+</head>
+<body>
+
+  <h1 class="text-center mb-4">Search TV Shows</h1>
+  <div class="mb-4">
+    <input type="text" id="searchInput" class="form-control" placeholder="Search for TV shows...">
+  </div>
+
+  <div class="row" id="tvResults"></div>
+
+  <script>
+    const searchInput = document.getElementById("searchInput");
+    const tvResults = document.getElementById("tvResults");
+
+    searchInput.addEventListener("input", async () => {
+      const query = searchInput.value.trim();
+      if (query.length < 2) return;
+
+      const res = await fetch(`https://api.themoviedb.org/3/search/tv?api_key=1070730380f5fee0d87cf0382670b255&query=${encodeURIComponent(query)}`);
+      const data = await res.json();
+
+      tvResults.innerHTML = "";
+
+      data.results.forEach(show => {
+        const col = document.createElement("div");
+        col.className = "col-md-3 mb-4";
+
+        const poster = show.poster_path ? `https://image.tmdb.org/t/p/w500${show.poster_path}` : "https://via.placeholder.com/500x750?text=No+Image";
+
+        col.innerHTML = `
+          <div class="card h-100">
+            <img src="${poster}" class="card-img-top" alt="${show.name}">
+            <div class="card-body">
+              <h5 class="card-title">${show.name}</h5>
+              <p class="card-text">${show.overview.slice(0, 100)}...</p>
+              <a href="watch_tvshow.html?id=${show.id}&title=${encodeURIComponent(show.name)}&poster=${encodeURIComponent(poster)}&overview=${encodeURIComponent(show.overview)}&release=${show.first_air_date}" class="btn btn-purple">Watch</a>
+            </div>
+          </div>
+        `;
+        tvResults.appendChild(col);
+      });
+    });
+  </script>
+
+</body>
+</html>
