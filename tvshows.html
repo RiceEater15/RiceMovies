@@ -1,4 +1,3 @@
-<!-- tv.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,15 +15,9 @@
       flex-direction: column;
     }
 
-    .title {
-      font-weight: bold;
-      text-align: center;
-      margin: 20px 0;
-    }
-
     .search-container {
       max-width: 400px;
-      margin: 0 auto;
+      margin: 30px auto;
     }
 
     .search-container input {
@@ -67,12 +60,44 @@
     .movie-card h5 {
       margin: 10px 0;
     }
+
+    .navbar {
+      background-color: #111;
+    }
+
+    .navbar-brand, .nav-link {
+      color: white !important;
+    }
+
+    .navbar-brand {
+      font-weight: bold;
+    }
+
+    .nav-link.active {
+      color: #ffc107 !important;
+    }
   </style>
 </head>
 <body>
 
-  <h1 class="title">RiceMovies - TV Shows</h1>
+  <!-- 🔹 Navbar -->
+  <nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">🍿 RiceMovies</a>
+      <div>
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0 d-flex flex-row gap-3">
+          <li class="nav-item">
+            <a class="nav-link" href="index.html">Movies</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="tvshows.html">TV Shows</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
 
+  <!-- 🔎 Search -->
   <div class="search-container">
     <input type="text" id="searchInput" placeholder="Search for TV shows..." />
   </div>
