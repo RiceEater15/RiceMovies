@@ -111,6 +111,7 @@
           <button data-source="2embed.cc">2Embed</button>
           <button data-source="moviesapi.to">MoviesAPI</button>
           <button data-source="vidlinks">VidLinks</button>
+          <button data-source="123embed">123Embeded</button>
         </div>
       </div>
     </div>
@@ -213,7 +214,8 @@
         "multiembed.mov": `https://multiembed.mov/directstream.php?video_id=${showId}&tmdb=1&s=${currentSeason}&e=${currentEpisode}`,
         "2embed.cc": `https://www.2embed.cc/embedtv/${showId}&s=${currentSeason}&e=${currentEpisode}`,
         "moviesapi.to": `https://moviesapi.to/tv/${showId}-${currentSeason}-${currentEpisode}`,
-        "vidlinks": `https://vidlink.pro/tv/${showId}/${currentSeason}/${currentEpisode}`
+        "vidlinks": `https://vidlink.pro/tv/${showId}/${currentSeason}/${currentEpisode}`,
+        "123embed": `https://play2.123embed.net/tv/${showId}/${currentSeason}/${currentEpisode}`
       };
       player.src = sources[currentSource];
     }
