@@ -113,6 +113,7 @@
           <button data-source="vidlinks">VidLinks</button>
           <button data-source="123embed">123Embeded</button>
           <button data-source="111movies">111Movies</button>
+          <button data-source="videasy">VidEasy</button>
         </div>
       </div>
     </div>
@@ -217,7 +218,8 @@
         "moviesapi.to": `https://moviesapi.to/tv/${showId}-${currentSeason}-${currentEpisode}`,
         "vidlinks": `https://vidlink.pro/tv/${showId}/${currentSeason}/${currentEpisode}`,
         "123embed": `https://play2.123embed.net/tv/${showId}/${currentSeason}/${currentEpisode}`,
-        "111movies": `https://111movies.com/tv/${showId}/${currentSeason}/${currentEpisode}`
+        "111movies": `https://111movies.com/tv/${showId}/${currentSeason}/${currentEpisode}`,
+        "videasy": `https://player.videasy.net/tv/${showId}/${currentSeason}/${currentEpisode}`
       };
       player.src = sources[currentSource];
     }
