@@ -1,0 +1,15 @@
+.title {
+  font-weight: bold;
+  margin-right: 3rem;
+  flex-shrink: 0;
+  font-size: 1.5rem;
+  color: #a020f0;
+  text-shadow: 0 0 10px rgba(160, 32, 240, 0.3);
+}
+
+.title::before {
+  content: "🍿";
+  margin-right: 0.5rem;
+  font-size: 1.2em;
+  vertical-align: middle;
+} 
