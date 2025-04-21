@@ -40,11 +40,15 @@ body {
     text-shadow: 0 0 10px rgba(160, 32, 240, 0.3);
   }
 
-  .content-wrapper {
+    .content-wrapper {
     display: flex;
     flex-direction: column;
     margin-top: 100px;
     gap: 30px;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 20px;
   }
   .movie-details {
     max-width: 400px;
