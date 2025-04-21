@@ -192,8 +192,6 @@ body {
 
   .episodes-container {
     background-color: #1e1e1e;
-    display: flex;
-    flex-direction: row;
     padding: 15px;
     border-radius: 10px;
     margin-top: 20px;
