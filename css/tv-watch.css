@@ -40,15 +40,12 @@ body {
     text-shadow: 0 0 10px rgba(160, 32, 240, 0.3);
   }
 
-.content-wrapper {
-  display: flex;
-  flex-direction: row; 
-  flex-wrap: wrap;
-  margin-top: 100px;
-  gap: 30px;
-  justify-content: center;
-  align-items: flex-start;
-}
+  .content-wrapper {
+    display: flex;
+    flex-direction: row;
+    margin-top: 100px;
+    gap: 30px;
+  }
   .movie-details {
     max-width: 400px;
     margin: 0 auto;
