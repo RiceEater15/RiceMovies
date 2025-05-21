@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+ "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>PayloadContent</key>
+  <array>
+    <dict>
+      <key>FullScreen</key>
+      <true/>
+      <key>IsRemovable</key>
+      <false/>
+      <key>Label</key>
+      <string>RiceMovies</string>
+      <key>PayloadDescription</key>
+      <string>Free Movies!</string>
+      <key>PayloadDisplayName</key>
+      <string>RiceMovies</string>
+      <key>PayloadIdentifier</key>
+      <string>com.ricemovies.webclip</string>
+      <key>PayloadType</key>
+      <string>com.apple.webClip.managed</string>
+      <key>PayloadUUID</key>
+      <string>f7a482d0-bd88-4cc2-8c5c-ricemovies123</string>
+      <key>PayloadVersion</key>
+      <integer>1</integer>
+      <key>Precomposed</key>
+      <true/>
+      <key>URL</key>
+      <string>https://ricemovies.vercel.app</string>
+      <key>Icon</key>
+      <data>
+      /9j/4AAQSkZJRgABAQAAkACQAAD/4QCMRXhpZgAATU0AKgAAAAgABQESAAMAAAABAAEAAAEaAAUA
+      AAABAAAASgEbAAUAAAABAAAAUgEoAAMAAAABAAIAAAExAAIAAAAUAAAAVodpAAQAAAABAAAAZAAA
+      AABBcHBsZQBQaG90b3MgUmVhbCBJTVIgaU9TIDIuMQAyMDI0OjA1OjE3IDE5OjAxOjIwAAABtAAA
+      AAEAAABtAAAAAf/Y/+AAEEpGSUYAAQEAAAEAAQAA/9sAQwAHBgYGBgYHBwYHBwcLCwsLCwwMDAwO
+      Dg4ODxAQEBARERIZGBgZGBoaHiIiIiQlJSUlJSUlJSUlJf/...
+      </data>
+    </dict>
+  </array>
+  <key>PayloadDisplayName</key>
+  <string>RiceMovies WebClip</string>
+  <key>PayloadIdentifier</key>
+  <string>com.ricemovies.profile</string>
+  <key>PayloadRemovalDisallowed</key>
+  <false/>
+  <key>PayloadType</key>
+  <string>Configuration</string>
+  <key>PayloadUUID</key>
+  <string>3f3aa4b3-6e21-49ab-bf5e-ricemovies456</string>
+  <key>PayloadVersion</key>
+  <integer>1</integer>
+</dict>
+</plist>
