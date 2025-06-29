@@ -111,7 +111,7 @@ function updateEpisodeInfo(episode) {
 }
 
 const serverSelect = document.getElementById("serverSelect");
-let currentSource = "2embed.cc";
+let currentSource = serverSelect.value;
 
 serverSelect.addEventListener("change", e => {
   currentSource = e.target.value;
@@ -132,29 +132,28 @@ function updateIframe() {
   player.src = sources[currentSource];
 }
 
-currentSource = serverSelect.value;
 updateIframe();
 
-document.getElementById("toggleCast").addEventListener("click", function() {
+document.getElementById("toggleCast").addEventListener("click", () => {
   const castGrid = document.getElementById("actors");
-  const button = this;
+  const btn = document.getElementById("toggleCast");
   if (castGrid.style.display === "none") {
     castGrid.style.display = "grid";
-    button.textContent = "Hide Cast";
+    btn.textContent = "Hide Cast";
   } else {
     castGrid.style.display = "none";
-    button.textContent = "Show Cast";
+    btn.textContent = "Show Cast";
   }
 });
 
-document.getElementById("toggleEpisodes").addEventListener("click", function() {
+document.getElementById("toggleEpisodes").addEventListener("click", () => {
   const episodeList = document.getElementById("episodeList");
-  const button = this;
+  const btn = document.getElementById("toggleEpisodes");
   if (episodeList.style.display === "none") {
     episodeList.style.display = "block";
-    button.textContent = "Hide Episodes";
+    btn.textContent = "Hide Episodes";
   } else {
     episodeList.style.display = "none";
-    button.textContent = "Show Episodes";
+    btn.textContent = "Show Episodes";
   }
 });
