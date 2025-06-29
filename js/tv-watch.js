@@ -14,7 +14,6 @@ let currentEpisode = 1;
 
 showTitle.textContent = title;
 
-// Update the show info content without overwriting the cast section
 const showInfoContent = showInfo.querySelector('.show-info-content');
 showInfoContent.innerHTML = `
   <img src="${poster}" alt="${title}" />
@@ -25,13 +24,12 @@ showInfoContent.innerHTML = `
   </div>
 `;
 
-// Fetch cast
 fetch(`https://api.themoviedb.org/3/tv/${showId}/credits?api_key=1070730380f5fee0d87cf0382670b255`)
   .then(res => res.json())
   .then(data => {
     const castContainer = document.getElementById("actors");
     if (data.cast?.length > 0) {
-      const topCast = data.cast.slice(0, 6); // Show top 6 cast members
+      const topCast = data.cast.slice(0, 6);
       castContainer.innerHTML = topCast.map(actor => `
         <div class="actor-card">
           <img src="https://image.tmdb.org/t/p/w185${actor.profile_path}" alt="${actor.name}" onerror="this.src='https://via.placeholder.com/185x278?text=No+Image'">
@@ -49,12 +47,12 @@ fetch(`https://api.themoviedb.org/3/tv/${showId}/credits?api_key=1070730380f5fee
     document.getElementById("actors").innerHTML = "Failed to load cast.";
   });
 
-// Fetch season & episode count
 fetch(`https://api.themoviedb.org/3/tv/${showId}?api_key=1070730380f5fee0d87cf0382670b255`)
   .then(res => res.json())
   .then(data => {
     const seasons = data.number_of_seasons || 1;
     const seasonSelect = document.getElementById("seasonSelect");
+    seasonSelect.innerHTML = "";
     for (let i = 1; i <= seasons; i++) {
       const opt = document.createElement("option");
       opt.value = i;
@@ -76,7 +74,7 @@ function loadEpisodes(season) {
       const episodeList = document.getElementById("episodeList");
       episodeList.innerHTML = "";
       const epCount = data.episodes?.length || 1;
-      
+
       for (let i = 1; i <= epCount; i++) {
         const episode = data.episodes[i - 1];
         const episodeName = episode.name || "Untitled Episode";
@@ -97,8 +95,7 @@ function loadEpisodes(season) {
         });
         episodeList.appendChild(episodeItem);
       }
-      
-      // Select first episode by default
+
       if (episodeList.firstChild) {
         episodeList.firstChild.classList.add("active");
         currentEpisode = 1;
@@ -135,7 +132,6 @@ function updateIframe() {
   player.src = sources[currentSource];
 }
 
-// Set initial source
 currentSource = serverSelect.value;
 updateIframe();
 
@@ -161,4 +157,4 @@ document.getElementById("toggleEpisodes").addEventListener("click", function() {
     episodeList.style.display = "none";
     button.textContent = "Show Episodes";
   }
-}); 
+});
