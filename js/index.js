@@ -1,112 +1,107 @@
 const apiKey = '1070730380f5fee0d87cf0382670b255';
-const searchInput = document.getElementById('searchInput');
-const movieList = document.getElementById('movieList');
-const pageCircles = document.getElementById('pageCircles');
 
-let currentPage = 1;
-let totalPages = 1;
-let currentQuery = '';
+    const categories = [
+      { name: "Trending", endpoint: "trending/all/week" },
+      { name: "Movies", endpoint: "movie/popular" },
+      { name: "TV Shows", endpoint: "tv/popular" }
+    ];
 
-document.addEventListener("DOMContentLoaded", () => {
-  fetchPopularMovies();
-});
+    document.addEventListener("DOMContentLoaded", () => {
+      loadCategories();
+    });
 
-function updatePage() {
-  if (currentQuery) {
-    searchMovies(currentQuery);
-  } else {
-    fetchPopularMovies();
-  }
-  updatePageCircles();
-}
+    async function loadCategories() {
+      const container = document.getElementById('discoverContainer');
+      container.innerHTML = '';
 
-function updatePageCircles() {
-  pageCircles.innerHTML = '';
-  
-  // Show exactly 3 pages
-  const maxVisiblePages = 3;
-  let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-  let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-  
-  if (endPage - startPage + 1 < maxVisiblePages) {
-    startPage = Math.max(1, endPage - maxVisiblePages + 1);
-  }
+      for (const category of categories) {
+        const section = document.createElement('div');
+        section.className = 'genre-row';
+        section.innerHTML = `
+          <div class="genre-title">${category.name}</div>
+          <div class="scroll-container" id="${category.name.replace(/\s+/g, '')}"></div>
+        `;
+        container.appendChild(section);
 
-  for (let i = startPage; i <= endPage; i++) {
-    const circle = document.createElement('div');
-    circle.className = `page-circle ${i === currentPage ? 'active' : ''}`;
-    circle.onclick = () => {
-      currentPage = i;
-      updatePage();
-    };
-    pageCircles.appendChild(circle);
-  }
-}
+        const results = await fetchData(category.endpoint);
+        displayItems(results, category.name.replace(/\s+/g, ''));
+      }
+    }
 
-async function fetchPopularMovies() {
-  const res = await fetch(`https://api.themoviedb.org/3/movie/popular?api_key=${apiKey}&language=en-US&page=${currentPage}`);
-  const data = await res.json();
-  totalPages = Math.min(3, data.total_pages); // Limit to 3 pages
-  displayMovies(data.results);
-  updatePageCircles();
-}
+    async function fetchData(endpoint) {
+      const url = `https://api.themoviedb.org/3/${endpoint}?api_key=${apiKey}&language=en-US`;
+      const res = await fetch(url);
+      const data = await res.json();
+      return data.results || [];
+    }
 
-async function searchMovies(query) {
-  currentQuery = query;
-  const res = await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&query=${query}&language=en-US&page=${currentPage}`);
-  const data = await res.json();
-  totalPages = Math.min(3, data.total_pages); // Limit to 3 pages
-  displayMovies(data.results);
-  updatePageCircles();
-}
+    function displayItems(items, containerId) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+      items.slice(0, 12).forEach(item => {
+        if (!item.poster_path) return;
 
-function displayMovies(movies) {
-  movieList.innerHTML = '';
+        const card = document.createElement('div');
+        card.className = 'movie-card';
 
-  // Determine number of movies based on screen width
-  let maxMovies = 12; // Default: 3 rows of 4
-  if (window.innerWidth <= 768) {
-    maxMovies = 6; // 3 rows of 2
-  }
-  if (window.innerWidth <= 480) {
-    maxMovies = 2; // 2 rows of 1
-  }
+        const poster = `https://image.tmdb.org/t/p/w500${item.poster_path}`;
+        const title = item.title || item.name || 'Untitled';
+        const id = item.id;
+        const mediaType = item.media_type || (item.first_air_date ? 'tv' : 'movie');
+        const overview = encodeURIComponent(item.overview || '');
+        const release = item.release_date || item.first_air_date || '';
+        const rating = item.vote_average ? item.vote_average.toFixed(1) : 'N/A';
 
-  // Limit movies based on screen size
-  const limitedMovies = movies.slice(0, maxMovies);
+        card.innerHTML = `
+          <img src="${poster}" alt="${title}" />
+          <div class="info-overlay">
+            ⭐ ${rating} &nbsp;&nbsp; 📅 ${release}
+          </div>
+          <h5>${title}</h5>
+        `;
 
-  limitedMovies.forEach(movie => {
-    if (!movie.poster_path) return;
+        card.onclick = () => {
+          const destination = mediaType === 'tv'
+            ? `tv-watch.html?id=${id}&title=${encodeURIComponent(title)}&poster=${encodeURIComponent(poster)}&overview=${overview}&release=${encodeURIComponent(release)}`
+            : `watch.html?id=${id}&title=${encodeURIComponent(title)}&poster=${encodeURIComponent(poster)}&overview=${overview}&release=${encodeURIComponent(release)}`;
+          window.location.href = destination;
+        };
 
-    const card = document.createElement('div');
-    card.className = 'movie-card';
+        container.appendChild(card);
+      });
+    }
 
-    const poster = `https://image.tmdb.org/t/p/w500${movie.poster_path}`;
-    const title = encodeURIComponent(movie.title);
-    const id = movie.id;
-    const overview = encodeURIComponent(movie.overview || '');
-    const release = encodeURIComponent(movie.release_date || '');
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener("input", async (e) => {
+      const query = e.target.value.trim();
+      const container = document.getElementById('discoverContainer');
+      if (!query) return loadCategories();
 
-    card.innerHTML = `
-      <img src="${poster}" alt="${movie.title}" />
-      <h5>${movie.title}</h5>
-    `;
+      const res = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${apiKey}&query=${encodeURIComponent(query)}&language=en-US`);
+      const data = await res.json();
 
-    card.onclick = () => {
-      window.location.href = `watch.html?id=${id}&title=${title}&poster=${encodeURIComponent(poster)}&overview=${overview}&release=${release}`;
-    };
+      const movies = data.results.filter(r => r.media_type === 'movie');
+      const tvShows = data.results.filter(r => r.media_type === 'tv');
 
-    movieList.appendChild(card);
-  });
-}
+      container.innerHTML = '';
 
-searchInput.addEventListener("input", (e) => {
-  const query = e.target.value.trim();
-  currentPage = 1;
-  if (query) {
-    searchMovies(query);
-  } else {
-    currentQuery = '';
-    fetchPopularMovies();
-  }
-}); 
+      if (movies.length > 0) {
+        const movieRow = document.createElement('div');
+        movieRow.className = 'genre-row';
+        movieRow.innerHTML = `<div class="genre-title">Movies</div><div class="scroll-container" id="SearchMovies"></div>`;
+        container.appendChild(movieRow);
+        displayItems(movies, 'SearchMovies');
+      }
+
+      if (tvShows.length > 0) {
+        const tvRow = document.createElement('div');
+        tvRow.className = 'genre-row';
+        tvRow.innerHTML = `<div class="genre-title">TV Shows</div><div class="scroll-container" id="SearchTV"></div>`;
+        container.appendChild(tvRow);
+        displayItems(tvShows, 'SearchTV');
+      }
+
+      if (movies.length === 0 && tvShows.length === 0) {
+        container.innerHTML = `<div class="genre-title">No results found.</div>`;
+      }
+    });
