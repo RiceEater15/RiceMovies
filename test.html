@@ -102,6 +102,7 @@
     }
 
     .movie-card {
+      position: relative;
       flex: 0 0 auto;
       width: 160px;
       background-color: #111;
@@ -125,6 +126,24 @@
     .movie-card h5 {
       margin: 10px;
       font-size: 0.9rem;
+    }
+
+    .info-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 5px;
+      font-size: 0.75rem;
+      opacity: 0;
+      transition: opacity 0.3s;
+      text-align: center;
+    }
+
+    .movie-card:hover .info-overlay {
+      opacity: 1;
     }
 
     @media (max-width: 768px) {
@@ -166,68 +185,71 @@
 
   <script>
     const apiKey = '1070730380f5fee0d87cf0382670b255';
-    const genres = [
+
+    const categories = [
       { name: "Trending", endpoint: "trending/all/week" },
-      { name: "Top Rated", endpoint: "movie/top_rated" },
-      { name: "Action", endpoint: "discover/movie&with_genres=28" },
-      { name: "Comedy", endpoint: "discover/movie&with_genres=35" },
-      { name: "Documentary", endpoint: "discover/movie&with_genres=99" }
+      { name: "Movies", endpoint: "movie/popular" },
+      { name: "TV Shows", endpoint: "tv/popular" }
     ];
 
     document.addEventListener("DOMContentLoaded", () => {
-      loadGenres();
+      loadCategories();
     });
 
-    async function loadGenres() {
+    async function loadCategories() {
       const container = document.getElementById('discoverContainer');
       container.innerHTML = '';
 
-      for (const genre of genres) {
+      for (const category of categories) {
         const section = document.createElement('div');
         section.className = 'genre-row';
         section.innerHTML = `
-          <div class="genre-title">${genre.name}</div>
-          <div class="scroll-container" id="${genre.name.replace(/\s+/g, '')}"></div>
+          <div class="genre-title">${category.name}</div>
+          <div class="scroll-container" id="${category.name.replace(/\s+/g, '')}"></div>
         `;
         container.appendChild(section);
 
-        const results = await fetchGenreMovies(genre.endpoint);
-        displayGenreMovies(results, genre.name.replace(/\s+/g, ''));
+        const results = await fetchData(category.endpoint);
+        displayItems(results, category.name.replace(/\s+/g, ''));
       }
     }
 
-    async function fetchGenreMovies(endpoint) {
+    async function fetchData(endpoint) {
       const url = `https://api.themoviedb.org/3/${endpoint}?api_key=${apiKey}&language=en-US`;
       const res = await fetch(url);
       const data = await res.json();
       return data.results || [];
     }
 
-    function displayGenreMovies(movies, containerId) {
+    function displayItems(items, containerId) {
       const container = document.getElementById(containerId);
       container.innerHTML = '';
-      movies.slice(0, 10).forEach(movie => {
-        if (!movie.poster_path) return;
+      items.slice(0, 12).forEach(item => {
+        if (!item.poster_path) return;
 
         const card = document.createElement('div');
         card.className = 'movie-card';
 
-        const poster = `https://image.tmdb.org/t/p/w500${movie.poster_path}`;
-        const title = movie.title || movie.name || 'Untitled';
-        const id = movie.id;
-        const mediaType = movie.media_type || 'movie';
-        const overview = encodeURIComponent(movie.overview || '');
-        const release = encodeURIComponent(movie.release_date || movie.first_air_date || '');
+        const poster = `https://image.tmdb.org/t/p/w500${item.poster_path}`;
+        const title = item.title || item.name || 'Untitled';
+        const id = item.id;
+        const mediaType = item.media_type || (item.first_air_date ? 'tv' : 'movie');
+        const overview = encodeURIComponent(item.overview || '');
+        const release = item.release_date || item.first_air_date || '';
+        const rating = item.vote_average ? item.vote_average.toFixed(1) : 'N/A';
 
         card.innerHTML = `
           <img src="${poster}" alt="${title}" />
+          <div class="info-overlay">
+            ⭐ ${rating} &nbsp;&nbsp; 📅 ${release}
+          </div>
           <h5>${title}</h5>
         `;
 
         card.onclick = () => {
           const destination = mediaType === 'tv'
-            ? `tv-watch.html?id=${id}&title=${encodeURIComponent(title)}&poster=${encodeURIComponent(poster)}&overview=${overview}&release=${release}`
-            : `watch.html?id=${id}&title=${encodeURIComponent(title)}&poster=${encodeURIComponent(poster)}&overview=${overview}&release=${release}`;
+            ? `tv-watch.html?id=${id}&title=${encodeURIComponent(title)}&poster=${encodeURIComponent(poster)}&overview=${overview}&release=${encodeURIComponent(release)}`
+            : `watch.html?id=${id}&title=${encodeURIComponent(title)}&poster=${encodeURIComponent(poster)}&overview=${overview}&release=${encodeURIComponent(release)}`;
           window.location.href = destination;
         };
 
@@ -239,12 +261,35 @@
     searchInput.addEventListener("input", async (e) => {
       const query = e.target.value.trim();
       const container = document.getElementById('discoverContainer');
-      if (!query) return loadGenres();
+      if (!query) return loadCategories();
 
       const res = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${apiKey}&query=${encodeURIComponent(query)}&language=en-US`);
       const data = await res.json();
-      container.innerHTML = '<div class="genre-title">Search Results</div><div class="scroll-container" id="SearchResults"></div>';
-      displayGenreMovies(data.results, "SearchResults");
+
+      const movies = data.results.filter(r => r.media_type === 'movie');
+      const tvShows = data.results.filter(r => r.media_type === 'tv');
+
+      container.innerHTML = '';
+
+      if (movies.length > 0) {
+        const movieRow = document.createElement('div');
+        movieRow.className = 'genre-row';
+        movieRow.innerHTML = `<div class="genre-title">Movies</div><div class="scroll-container" id="SearchMovies"></div>`;
+        container.appendChild(movieRow);
+        displayItems(movies, 'SearchMovies');
+      }
+
+      if (tvShows.length > 0) {
+        const tvRow = document.createElement('div');
+        tvRow.className = 'genre-row';
+        tvRow.innerHTML = `<div class="genre-title">TV Shows</div><div class="scroll-container" id="SearchTV"></div>`;
+        container.appendChild(tvRow);
+        displayItems(tvShows, 'SearchTV');
+      }
+
+      if (movies.length === 0 && tvShows.length === 0) {
+        container.innerHTML = `<div class="genre-title">No results found.</div>`;
+      }
     });
   </script>
 </body>
