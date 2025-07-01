@@ -7,24 +7,22 @@ window.addEventListener('load', () => {
     sessionStorage.setItem('welcomeShown', 'true');
 
     setTimeout(() => {
-      welcomeScreen.classList.add('hide');
+      welcomeScreen.classList.add('hide-opacity');
 
       setTimeout(() => {
         welcomeScreen.style.display = 'none';
-
-        logoPopup.classList.add('show');
+        logoPopup.style.display = 'flex';
+        logoPopup.classList.remove('hide-opacity');
 
         setTimeout(() => {
-          logoPopup.classList.add('hide');
+          logoPopup.classList.add('hide-opacity');
 
           setTimeout(() => {
             logoPopup.style.display = 'none';
             mainContent.style.display = 'block';
-          }, 500);
-
+          }, 700);
         }, 2500);
-      }, 500);
-
+      }, 700);
     }, 2000);
 
   } else {
