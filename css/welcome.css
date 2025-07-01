@@ -23,3 +23,58 @@
   opacity: 0;
   pointer-events: none;
 }
+
+#logo-popup {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #121212;
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  color: white;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  transition: opacity 0.5s ease;
+}
+
+#logo-popup.show {
+  display: flex;
+  opacity: 1;
+}
+
+#logo-popup.hide {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#logo-popup img {
+  max-width: 200px;
+  width: 50vw;
+  height: auto;
+  margin-bottom: 30px;
+  filter: drop-shadow(0 0 10px gold);
+}
+
+#logo-popup .footer-text {
+  position: absolute;
+  bottom: 40px;
+  text-align: center;
+  width: 100%;
+  font-size: 1rem;
+  color: #ffd700;
+  text-shadow: 0 0 5px #ffa500;
+}
+
+#logo-popup .footer-text .heart {
+  color: red;
+  margin: 0 6px;
+  font-weight: bold;
+}
+
+#logo-popup .footer-text .team {
+  margin-top: 4px;
+  font-size: 0.9rem;
+  color: #ddd;
+  text-shadow: none;
+}
