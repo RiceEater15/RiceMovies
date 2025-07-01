@@ -17,9 +17,9 @@
       <key>Label</key>
       <string>RiceMovies</string>
       <key>PayloadDescription</key>
-      <string>Configures a Web Clip</string>
+      <string>Made With Love from RiceStudios</string>
       <key>PayloadDisplayName</key>
-      <string>RiceMovies Web Clip</string>
+      <string>RiceMovies App Install</string>
       <key>PayloadIdentifier</key>
       <string>com.ricemovies.webclip</string>
       <key>PayloadType</key>
