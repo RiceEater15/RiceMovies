@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RiceMusic</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #000;
+      color: #fff;
+      padding: 20px;
+    }
+
+    .logo {
+      font-size: 2em;
+      font-weight: bold;
+      color: #fff;
+      text-shadow: 0 0 10px #00f0ff, 0 0 20px #00f0ff;
+      margin-bottom: 20px;
+    }
+
+    .search-container input {
+      width: 100%;
+      padding: 12px;
+      font-size: 1em;
+      border: none;
+      border-radius: 10px;
+      outline: none;
+      background: #111;
+      color: #fff;
+      box-shadow: 0 0 5px #00f0ff;
+    }
+
+    .results, .recent {
+      margin-top: 20px;
+    }
+
+    .track {
+      padding: 10px;
+      border-bottom: 1px solid #222;
+      cursor: pointer;
+    }
+
+    .track:hover {
+      background-color: #111;
+    }
+
+    .track-title {
+      font-weight: bold;
+    }
+
+    audio {
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    .section-title {
+      font-size: 1.2em;
+      margin-top: 30px;
+      text-shadow: 0 0 5px #00f0ff;
+    }
+  </style>
+</head>
+<body>
+  <div class="logo">RiceMusic</div>
+
+  <div class="search-container">
+    <input type="text" id="searchInput" placeholder="Search for music...">
+  </div>
+
+  <div class="results" id="results"></div>
+
+  <div class="section-title">Recently Played</div>
+  <div class="recent" id="recent"></div>
+
+  <audio id="audioPlayer" controls></audio>
+
+  <script>
+    const searchInput = document.getElementById('searchInput');
+    const resultsContainer = document.getElementById('results');
+    const recentContainer = document.getElementById('recent');
+    const audioPlayer = document.getElementById('audioPlayer');
+    const recentPlayed = [];
+
+    async function searchTracks(query) {
+      const res = await fetch(`https://discoveryprovider.audius.co/v1/tracks/search?query=${encodeURIComponent(query)}&limit=10`);
+      const data = await res.json();
+      return data.data;
+    }
+
+    function playTrack(track) {
+      audioPlayer.src = track.stream_url;
+      audioPlayer.play();
+
+      // Add to recent
+      recentPlayed.unshift(track);
+      if (recentPlayed.length > 5) recentPlayed.pop();
+      renderRecent();
+    }
+
+    function renderTracks(tracks) {
+      resultsContainer.innerHTML = '';
+      tracks.forEach(track => {
+        const el = document.createElement('div');
+        el.className = 'track';
+        el.innerHTML = `<div class="track-title">${track.title}</div><div>${track.user.name}</div>`;
+        el.onclick = () => playTrack(track);
+        resultsContainer.appendChild(el);
+      });
+    }
+
+    function renderRecent() {
+      recentContainer.innerHTML = '';
+      recentPlayed.forEach(track => {
+        const el = document.createElement('div');
+        el.className = 'track';
+        el.innerHTML = `<div class="track-title">${track.title}</div><div>${track.user.name}</div>`;
+        el.onclick = () => playTrack(track);
+        recentContainer.appendChild(el);
+      });
+    }
+
+    searchInput.addEventListener('input', async () => {
+      const query = searchInput.value.trim();
+      if (query.length > 2) {
+        const results = await searchTracks(query);
+        renderTracks(results);
+      } else {
+        resultsContainer.innerHTML = '';
+      }
+    });
+  </script>
+</body>
+</html>
