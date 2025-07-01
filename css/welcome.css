@@ -1,13 +1,13 @@
-#welcome-screen {
+#welcome-screen, #logo-popup {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
   background-color: #121212;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 3rem;
-  font-weight: 900;
   color: gold;
+  font-weight: 900;
+  font-size: 3rem;
   text-shadow:
     0 0 5px #ffd700,
     0 0 10px #ffd700,
@@ -16,34 +16,18 @@
     0 0 30px #ffa500,
     0 0 40px #ff8c00;
   z-index: 9999;
-  transition: opacity 0.5s ease;
-}
-
-#welcome-screen.hide {
-  opacity: 0;
-  pointer-events: none;
+  transition: opacity 0.7s ease;
 }
 
 #logo-popup {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background-color: #121212;
-  display: none;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
   color: white;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  transition: opacity 0.5s ease;
+  font-size: 3rem;
+  text-align: center;
 }
 
-#logo-popup.show {
-  display: flex;
-  opacity: 1;
-}
-
-#logo-popup.hide {
+.hide-opacity {
   opacity: 0;
   pointer-events: none;
 }
@@ -59,7 +43,6 @@
 #logo-popup .footer-text {
   position: absolute;
   bottom: 40px;
-  text-align: center;
   width: 100%;
   font-size: 1rem;
   color: #ffd700;
