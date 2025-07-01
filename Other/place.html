@@ -37,9 +37,42 @@
       margin-top: 20px;
     }
 
-    .result {
-      margin-bottom: 20px;
+    .track {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      margin-bottom: 10px;
+      background-color: #111;
+      border-radius: 12px;
       cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .track:hover {
+      background-color: #1a1a1a;
+    }
+
+    .thumbnail {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      margin-right: 15px;
+      object-fit: cover;
+    }
+
+    .track-info {
+      flex: 1;
+    }
+
+    .track-title {
+      font-weight: bold;
+      font-size: 1em;
+      margin-bottom: 4px;
+    }
+
+    .track-artist {
+      font-size: 0.9em;
+      color: #aaa;
     }
 
     iframe {
@@ -47,6 +80,7 @@
       height: 220px;
       border: none;
       margin-top: 20px;
+      border-radius: 10px;
     }
   </style>
 </head>
@@ -78,17 +112,20 @@
       playerContainer.innerHTML = '';
       videos.forEach(video => {
         const div = document.createElement('div');
-        div.className = 'result';
-        div.innerHTML = `
-          <strong>${video.snippet.title}</strong><br/>
-          <small>${video.snippet.channelTitle}</small><br/>
-          <img src="${video.snippet.thumbnails.medium.url}" width="100%" style="margin-top: 5px; border-radius: 8px;" />
-        `;
+        div.className = 'track';
         div.onclick = () => {
           playerContainer.innerHTML = `
             <iframe src="https://www.youtube.com/embed/${video.id.videoId}?autoplay=1&modestbranding=1&rel=0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
           `;
         };
+
+        div.innerHTML = `
+          <img class="thumbnail" src="${video.snippet.thumbnails.default.url}" alt="thumbnail" />
+          <div class="track-info">
+            <div class="track-title">${video.snippet.title}</div>
+            <div class="track-artist">${video.snippet.channelTitle}</div>
+          </div>
+        `;
         resultsContainer.appendChild(div);
       });
     }
