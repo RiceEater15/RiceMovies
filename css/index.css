@@ -135,6 +135,10 @@ body {
     .movie-card:hover .info-overlay {
       opacity: 1;
     }
+    
+    .LogoPNG {
+        border-radius: 15%;
+    }
 
     @media (max-width: 768px) {
       .movie-card {
