@@ -13,3 +13,7 @@
   font-size: 1.2em;
   vertical-align: middle;
 } 
+a {
+  color: inherit;
+  text-decoration: none;
+}
