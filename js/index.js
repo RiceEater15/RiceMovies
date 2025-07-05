@@ -109,3 +109,9 @@ searchInput.addEventListener("input", async (e) => {
     container.innerHTML = `<div class="genre-title">No results found.</div>`;
   }
 });
+
+function goToSeeMore(endpoint, name) {
+  const urlName = encodeURIComponent(name.toLowerCase().replace(/\s+/g, '-'));
+  window.location.href = `see-more.html?category=${urlName}&endpoint=${encodeURIComponent(endpoint)}`;
+}
+
