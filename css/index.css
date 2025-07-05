@@ -161,24 +161,14 @@ body {
       }
     }
 
-.genre-title-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 20px 10px 10px;
-}
-
-.see-more-btn {
-  background-color: #a020f0;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 0.85rem;
+.genre-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #f8c014;
   cursor: pointer;
-  transition: background 0.3s ease;
+  text-decoration: underline;
 }
 
-.see-more-btn:hover {
-  background-color: #c86bfa;
+.genre-title:hover {
+  color: #c86bfa;
 }
