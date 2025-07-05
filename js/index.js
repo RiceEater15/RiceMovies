@@ -32,6 +32,15 @@ const apiKey = '1070730380f5fee0d87cf0382670b255';
       }
     }
 
+    document.addEventListener("click", (e) => {
+  if (e.target.classList.contains("see-more-btn")) {
+    const endpoint = e.target.getAttribute("data-endpoint");
+    const title = e.target.getAttribute("data-title");
+    window.location.href = `see-more.html?endpoint=${encodeURIComponent(endpoint)}&title=${encodeURIComponent(title)}`;
+  }
+});
+
+
     async function fetchData(endpoint) {
       const url = `https://api.themoviedb.org/3/${endpoint}?api_key=${apiKey}&language=en-US`;
       const res = await fetch(url);
