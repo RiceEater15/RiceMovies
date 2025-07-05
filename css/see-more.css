@@ -99,6 +99,19 @@ body {
   opacity: 1;
 }
 
+.see-more-btn {
+  background-color: purple;
+  color: #fff;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
 @media (max-width: 768px) {
   .movie-card {
     width: 130px;
