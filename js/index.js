@@ -1,9 +1,13 @@
 const apiKey = '1070730380f5fee0d87cf0382670b255';
 
     const categories = [
-      { name: "Trending", endpoint: "trending/all/week" },
-      { name: "Movies", endpoint: "movie/popular" },
-      { name: "TV Shows", endpoint: "tv/popular" }
+  { name: "Trending", endpoint: "trending/all/week" },
+  { name: "Movies", endpoint: "movie/popular" },
+  { name: "TV Shows", endpoint: "tv/popular" },  
+  { name: "Top Rated Movies", endpoint: "movie/top_rated" },
+  { name: "Top Rated TV", endpoint: "tv/top_rated" },
+  { name: "Reality TV", endpoint: "discover/tv?with_genres=10764" }, 
+  { name: "Documentaries", endpoint: "discover/tv?with_genres=99" },
     ];
 
     document.addEventListener("DOMContentLoaded", () => {
