@@ -25,7 +25,6 @@ body {
   transition: background-color 0.3s ease;
 }
 
-.navbar a.active,
 .navbar a:hover {
   background-color: rgba(255, 255, 255, 0.1);
 }
@@ -37,11 +36,11 @@ body {
 }
 
 .discover-section {
-  padding: 20px;
+  padding: 30px 20px;
 }
 
 .genre-title {
-  font-size: 1.8rem;
+  font-size: 2rem;
   font-weight: bold;
   margin-bottom: 20px;
   color: #f8c014;
@@ -49,18 +48,17 @@ body {
 }
 
 .scroll-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   gap: 20px;
-  padding: 10px;
+  justify-items: center;
 }
 
 .movie-card {
   position: relative;
   width: 160px;
   background-color: #111;
-  box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
   border-radius: 10px;
   overflow: hidden;
   transition: transform 0.2s ease;
@@ -80,7 +78,6 @@ body {
 .movie-card h5 {
   margin: 10px;
   font-size: 0.9rem;
-  color: white;
   text-align: center;
 }
 
@@ -93,9 +90,9 @@ body {
   color: white;
   padding: 5px;
   font-size: 0.75rem;
+  text-align: center;
   opacity: 0;
   transition: opacity 0.3s;
-  text-align: center;
 }
 
 .movie-card:hover .info-overlay {
