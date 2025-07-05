@@ -22,12 +22,11 @@ async function loadCategories() {
     const section = document.createElement('div');
     section.className = 'genre-row';
     section.innerHTML = `
-      <div class="genre-title-wrapper">
-        <div class="genre-title">${category.name}</div>
-        <a href="see-more.html?endpoint=${encodeURIComponent(category.endpoint)}&title=${encodeURIComponent(category.name)}" class="see-more-btn">See More →</a>
-      </div>
-      <div class="scroll-container" id="${category.name.replace(/\s+/g, '')}"></div>
-    `;
+  <div class="genre-title-row">
+    <a href="#" class="genre-title" onclick="goToSeeMore('${category.endpoint}', '${category.name}'); return false;">${category.name}</a>
+  </div>
+  <div class="scroll-container" id="${category.name.replace(/\s+/g, '')}"></div>
+`;
     container.appendChild(section);
 
     const results = await fetchData(category.endpoint);
