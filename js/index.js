@@ -44,7 +44,7 @@ async function fetchData(endpoint) {
 function displayItems(items, containerId) {
   const container = document.getElementById(containerId);
   container.innerHTML = '';
-  items.slice(0, 12).forEach(item => {
+  items.slice(0, 50).forEach(item => {
     if (!item.poster_path) return;
 
     const card = document.createElement('div');
