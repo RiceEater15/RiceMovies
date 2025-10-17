@@ -60,15 +60,34 @@ function displayItems(items, containerId) {
 
     const card = document.createElement('div');
     card.className = 'movie-card';
+    card.style.position = 'relative';
+
+    const favBtn = document.createElement('div');
+    favBtn.textContent = isFav ? '❤️' : '♡';
+    favBtn.style.position = 'absolute';
+    favBtn.style.top = '8px';
+    favBtn.style.right = '8px';
+    favBtn.style.fontSize = '22px';
+    favBtn.style.cursor = 'pointer';
+    favBtn.style.color = isFav ? '#ff3366' : 'rgba(255,255,255,0.8)';
+    favBtn.style.zIndex = '10';
+    favBtn.style.userSelect = 'none';
+
+    favBtn.onclick = (e) => {
+      e.stopPropagation();
+      toggleFavorite(id, title, poster, mediaType, favBtn);
+    };
+
     card.innerHTML = `
-      <div class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFavorite(event, ${id}, '${title.replace(/'/g, "\\'")}', '${poster}', '${mediaType}')">❤</div>
-      <img src="${poster}" alt="${title}" />
-      <div class="info-overlay">⭐ ${rating} • 📅 ${release}</div>
-      <h5>${title}</h5>
+      <img src="${poster}" alt="${title}" style="width:100%; border-radius:10px;" />
+      <div style="position:absolute;bottom:5px;left:5px;font-size:14px;color:white;text-shadow:0 0 5px black;">⭐ ${rating} • 📅 ${release}</div>
+      <h5 style="margin-top:8px;color:white;">${title}</h5>
     `;
 
+    card.prepend(favBtn);
+
     card.onclick = (e) => {
-      if (e.target.classList.contains('fav-btn')) return;
+      if (e.target === favBtn) return;
       const destination = mediaType === 'tv'
         ? `tv-watch.html?id=${id}&title=${encodeURIComponent(title)}&poster=${encodeURIComponent(poster)}&overview=${overview}&release=${encodeURIComponent(release)}`
         : `watch.html?id=${id}&title=${encodeURIComponent(title)}&poster=${encodeURIComponent(poster)}&overview=${overview}&release=${encodeURIComponent(release)}`;
@@ -79,18 +98,20 @@ function displayItems(items, containerId) {
   });
 }
 
-function toggleFavorite(e, id, title, poster, type) {
-  e.stopPropagation();
+function toggleFavorite(id, title, poster, type, btn) {
   const favs = JSON.parse(localStorage.getItem('favorites')) || [];
   const exists = favs.find(item => item.id === id);
 
   if (exists) {
-    localStorage.setItem('favorites', JSON.stringify(favs.filter(item => item.id !== id)));
-    e.target.classList.remove('active');
+    const updated = favs.filter(item => item.id !== id);
+    localStorage.setItem('favorites', JSON.stringify(updated));
+    btn.textContent = '♡';
+    btn.style.color = 'rgba(255,255,255,0.8)';
   } else {
     favs.push({ id, title, poster, type });
     localStorage.setItem('favorites', JSON.stringify(favs));
-    e.target.classList.add('active');
+    btn.textContent = '❤️';
+    btn.style.color = '#ff3366';
   }
 }
 
