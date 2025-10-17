@@ -15,7 +15,7 @@
     <a href="index.html"><div class="title">RiceMovies</div></a>
     <div>
       <a href="index.html">Discover</a>
-      <a href="favorites.html" class="active">Favorites</a>
+      <a href="favorite.html" class="active">Favorites</a>
     </div>
   </div>
 
@@ -50,6 +50,7 @@
         favBtn.style.cursor = "pointer";
         favBtn.style.color = "#ff3366";
         favBtn.style.userSelect = "none";
+
         favBtn.onclick = (e) => {
           e.stopPropagation();
           removeFavorite(item.id);
@@ -66,11 +67,9 @@
         card.prepend(favBtn);
 
         card.onclick = () => {
-          const overview = "";
-          const release = "";
           const destination = item.type === "tv"
-            ? \`tv-watch.html?id=\${item.id}&title=\${encodeURIComponent(item.title)}&poster=\${encodeURIComponent(item.poster)}&overview=\${encodeURIComponent(overview)}&release=\${encodeURIComponent(release)}\`
-            : \`watch.html?id=\${item.id}&title=\${encodeURIComponent(item.title)}&poster=\${encodeURIComponent(item.poster)}&overview=\${encodeURIComponent(overview)}&release=\${encodeURIComponent(release)}\`;
+            ? `tv-watch.html?id=${item.id}&title=${encodeURIComponent(item.title)}&poster=${encodeURIComponent(item.poster)}&overview=&release=`
+            : `watch.html?id=${item.id}&title=${encodeURIComponent(item.title)}&poster=${encodeURIComponent(item.poster)}&overview=&release=`;
           window.location.href = destination;
         };
 
@@ -79,9 +78,9 @@
     });
 
     function removeFavorite(id) {
-      const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
-      const updated = favorites.filter(item => item.id !== id);
-      localStorage.setItem("favorites", JSON.stringify(updated));
+      let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+      favorites = favorites.filter(item => item.id !== id);
+      localStorage.setItem("favorites", JSON.stringify(favorites));
     }
   </script>
 </body>
