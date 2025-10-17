@@ -1,14 +1,14 @@
 const apiKey = '1070730380f5fee0d87cf0382670b255';
 
-    const categories = [
+const categories = [
   { name: "Trending", endpoint: "trending/all/week" },
   { name: "Movies", endpoint: "movie/popular" },
-  { name: "TV Shows", endpoint: "tv/popular" },  
+  { name: "TV Shows", endpoint: "tv/popular" },
   { name: "Top Rated Movies", endpoint: "movie/top_rated" },
   { name: "Top Rated TV", endpoint: "tv/top_rated" },
-  { name: "Reality TV", endpoint: "discover/tv?with_genres=10764" }, 
+  { name: "Reality TV", endpoint: "discover/tv?with_genres=10764" },
   { name: "Documentaries", endpoint: "discover/tv?with_genres=99" },
-    ];
+];
 
 document.addEventListener("DOMContentLoaded", () => {
   loadCategories();
@@ -22,11 +22,11 @@ async function loadCategories() {
     const section = document.createElement('div');
     section.className = 'genre-row';
     section.innerHTML = `
-  <div class="genre-title-row">
-    <a href="#" class="genre-title" onclick="goToSeeMore('${category.endpoint}', '${category.name}'); return false;">${category.name}</a>
-  </div>
-  <div class="scroll-container" id="${category.name.replace(/\s+/g, '')}"></div>
-`;
+      <div class="genre-title-row">
+        <a href="#" class="genre-title" onclick="goToSeeMore('${category.endpoint}', '${category.name}'); return false;">${category.name}</a>
+      </div>
+      <div class="scroll-container" id="${category.name.replace(/\s+/g, '')}"></div>
+    `;
     container.appendChild(section);
 
     const results = await fetchData(category.endpoint);
@@ -44,6 +44,8 @@ async function fetchData(endpoint) {
 function displayItems(items, containerId) {
   const container = document.getElementById(containerId);
   container.innerHTML = '';
+  const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+
   items.slice(0, 50).forEach(item => {
     if (!item.poster_path) return;
 
@@ -58,10 +60,15 @@ function displayItems(items, containerId) {
     const release = item.release_date || item.first_air_date || '';
     const rating = item.vote_average ? item.vote_average.toFixed(1) : 'N/A';
 
+    const isFavorite = favorites.some(f => f.id == id && f.mediaType === mediaType);
+
     card.innerHTML = `
       <img src="${poster}" alt="${title}" />
       <div class="info-overlay">⭐ ${rating} • 📅 ${release}</div>
       <h5>${title}</h5>
+      <button class="fav-btn" onclick="toggleFavorite(event, '${id}', '${mediaType}', '${encodeURIComponent(title)}', '${encodeURIComponent(poster)}', '${overview}', '${encodeURIComponent(release)}')">
+        ${isFavorite ? '💖' : '❤️'}
+      </button>
     `;
 
     card.onclick = () => {
@@ -73,6 +80,23 @@ function displayItems(items, containerId) {
 
     container.appendChild(card);
   });
+}
+
+function toggleFavorite(event, id, mediaType, title, poster, overview, release) {
+  event.stopPropagation();
+
+  const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+  const exists = favorites.find(item => item.id == id && item.mediaType === mediaType);
+
+  if (exists) {
+    const updated = favorites.filter(item => !(item.id == id && item.mediaType === mediaType));
+    localStorage.setItem('favorites', JSON.stringify(updated));
+    event.target.textContent = '❤️';
+  } else {
+    favorites.push({ id, mediaType, title, poster, overview, release });
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+    event.target.textContent = '💖';
+  }
 }
 
 const searchInput = document.getElementById('searchInput');
@@ -114,4 +138,3 @@ function goToSeeMore(endpoint, name) {
   const urlName = encodeURIComponent(name.toLowerCase().replace(/\s+/g, '-'));
   window.location.href = `see-more.html?category=${urlName}&endpoint=${encodeURIComponent(endpoint)}`;
 }
-
