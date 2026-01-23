@@ -54,6 +54,8 @@
         <string>ABCDEF12-3456-7890-ABCD-RICEWEBCLIP01</string>
         <key>PayloadDisplayName</key>
         <string>RiceMovies</string>
+        <key>Label</key>
+        <string>RiceMovies</string>
         <key>FullScreen</key>
         <true/>
         <key>IsRemovable</key>
