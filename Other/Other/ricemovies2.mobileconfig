@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+ "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+
+  <key>PayloadType</key>
+  <string>Configuration</string>
+
+  <key>PayloadVersion</key>
+  <integer>1</integer>
+
+  <key>PayloadIdentifier</key>
+  <string>com.ricemovies.moviemode</string>
+
+  <key>PayloadUUID</key>
+  <string>F4A2D9E1-7B44-4F6E-9A12-RICEMOVIESMM1</string>
+
+  <key>PayloadDisplayName</key>
+  <string>RiceMovies Downloader + Adblocker</string>
+
+  <key>PayloadDescription</key>
+  <string>Watch Movies for free without popups! Thank you and made by RiceLord</string>
+
+  <key>PayloadOrganization</key>
+  <string>RiceMovies</string>
+
+  <key>PayloadIcon</key>
+  <data>
+  iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABFUlEQVR4nO3XsQ2AMAwF0Nz/6a0k
+  UQWkQ0RduCMsZ/HXXIQK5vCk1vZEBtcHTfb3e8DqgHMoDcgHMoDcgHMoDcgHMoDcgHMoDcgHMoDcg
+  HMoDcgHMoDcgHMoDcgHMoDcgHMoDcgHMoDcgHMoDcgHMoDcgHMoDcgHMoDcgHMoDcgHMoDcgHMoDc
+  gHMoDcgHMoDcgHMoDcgHMoDcgHMoDcgHMoDcgHMoDcgHMoDcqH/AQAA//8DAJtYB9kzZBHwAAAAAElFTkSu
+  QmCC
+  </data>
+
+  <key>PayloadScope</key>
+  <string>System</string>
+
+  <key>PayloadRemovalDisallowed</key>
+  <false/>
+
+  <key>PayloadContent</key>
+  <array>
+
+    <dict>
+      <key>PayloadType</key>
+      <string>com.apple.dnsSettings.managed</string>
+
+      <key>PayloadVersion</key>
+      <integer>1</integer>
+
+      <key>PayloadIdentifier</key>
+      <string>com.ricemovies.moviemode.dns</string>
+
+      <key>PayloadUUID</key>
+      <string>8C31D9B2-5A8E-4F0C-AE11-RICEDNSMM01</string>
+
+      <key>PayloadDisplayName</key>
+      <string>RiceMovies Movie Mode DNS</string>
+
+      <key>DNSSettings</key>
+      <dict>
+        <key>DNSProtocol</key>
+        <string>HTTPS</string>
+
+        <key>ServerURL</key>
+        <string>https://dns.nextdns.io/ea6787</string>
+      </dict>
+
+    </dict>
+
+  </array>
+
+</dict>
+</plist>
