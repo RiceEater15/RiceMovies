@@ -68,7 +68,6 @@ function displayItems(items, containerId) {
     const release = item.release_date || item.first_air_date || '';
     const rating = item.vote_average ? item.vote_average.toFixed(1) : 'N/A';
 
-    // Heart button (favorites)
     const favBtn = document.createElement('div');
     favBtn.className = 'fav-btn';
     favBtn.innerHTML = '🤍';
