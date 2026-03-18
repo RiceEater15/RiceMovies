@@ -160,5 +160,6 @@ document.getElementById("toggleEpisodes").addEventListener("click", () => {
 });
 
 document.getElementById("download").addEventListener("click", () => {
-  const link = `https://dl.vidsrc.vip/tv/${showId}/${currentSeason}/${currentEpisode}`
+  const link = `https://dl.vidsrc.vip/tv/${showId}/${currentSeason}/${currentEpisode}`;
+  windows.open(link, "_blank");
 });
