@@ -158,3 +158,7 @@ document.getElementById("toggleEpisodes").addEventListener("click", () => {
     btn.textContent = "Show Episodes";
   }
 });
+
+document.getElementById("download").addEventListener("click", () => {
+  const link = `https://dl.vidsrc.vip/tv/${showId}/${currentSeason}/${currentEpisode}`
+});
