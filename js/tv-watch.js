@@ -121,6 +121,7 @@ serverSelect.addEventListener("change", e => {
 function updateIframe() {
   const sources = {
     "2embed.cc": `https://www.2embed.cc/embedtv/${showId}&s=${currentSeason}&e=${currentEpisode}`,
+    "vidrock": `https://vidrock.net/tv/${showId}/${currentSeason}/${currentEpisode}`,
     "embed.su": `https://embed.su/embed/tv/${showId}/${currentSeason}/${currentEpisode}`,
     "multiembed.mov": `https://multiembed.mov/directstream.php?video_id=${showId}&tmdb=1&s=${currentSeason}&e=${currentEpisode}`,
     "moviesapi.to": `https://moviesapi.to/tv/${showId}-${currentSeason}-${currentEpisode}`,
