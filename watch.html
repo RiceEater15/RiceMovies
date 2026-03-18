@@ -29,12 +29,9 @@
         loading="lazy"
       ></iframe>
       <div class="server-container">
-        <select
-          id="serverSelect"
-          class="server-select"
-          aria-label="Select video source server"
-        >
-          <option value="2embed.cc">Primary</option>
+        <select id="serverSelect" class="server-select" aria-label="Select video source server">
+          <option value="vidrock">Primary</option>
+          <option value="2embed.cc">Primary Secondary</option>
           <option value="videasy">Secondary</option>
           <option value="111movies">Tertiary</option>
           <option value="moviesapi.to">Backup</option>
@@ -45,6 +42,8 @@
         </select>
       </div>
     </section>
+    
+    <button id="download" class="btn-purple">
 
     <section class="movie-details" id="movieInfo" aria-label="Movie details">
       <div class="movie-info-content">
