@@ -15,12 +15,13 @@ document.getElementById("movieOverview").textContent =
 
 const sources = {
   "2embed.cc": `https://www.2embed.cc/embed/${movieId}`,
-  videasy: `https://player.videasy.net/movie/${movieId}`,
+  "vidrock": `https://vidrock.net/movie/${movieId}`,
+  "videasy": `https://player.videasy.net/movie/${movieId}`,
   "111movies": `https://111movies.com/movie/${movieId}`,
   "moviesapi.to": `https://moviesapi.to/movie/${movieId}`,
   "embed.su": `https://embed.su/embed/movie/${movieId}`,
   "multiembed.mov": `https://multiembed.mov/directstream.php?video_id=${movieId}&tmdb=1`,
-  vidlinks: `https://vidlink.pro/movie/${movieId}`,
+  "vidlinks": `https://vidlink.pro/movie/${movieId}`,
   "123embed": `https://play2.123embed.net/movie/${movieId}`,
 };
 
@@ -79,3 +80,7 @@ fetch(
   .catch(() => {
     actorsContainer.innerHTML = "<em>Failed to load cast information.</em>";
   });
+document.getElementById("download").addEventListener("click", () => {
+  const link = `https://dl.vidsrc.vip/movie/${movieId}`;
+  window.open(link, "_blank");
+});
