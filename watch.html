@@ -22,12 +22,8 @@
   <main class="container" role="main" aria-label="Movie Watch Page">
     <section class="video-wrapper" aria-label="Movie Player and Source Selector">
       <h2 id="movieTitle" tabindex="0"></h2>
-      <iframe
-        id="player"
-        allowfullscreen
-        title="Movie player iframe"
-        loading="lazy"
-      ></iframe>
+      <iframe id="player" allowfullscreen webkitallowfullscreen mozallowfullscreen referrerpolicy="no-referrer" title="Movie player iframe" loading="lazy"></iframe>
+      
       <div class="server-container">
         <select id="serverSelect" class="server-select" aria-label="Select video source server">
           <option value="vidrock">Primary</option>
