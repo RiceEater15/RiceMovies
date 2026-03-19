@@ -15,7 +15,7 @@ document.getElementById("movieOverview").textContent =
 
 const sources = {
   "2embed.cc": `https://www.2embed.cc/embed/${movieId}`,
-  "vidrock": `https://vidrock.net/movie/${movieId}`,
+  "vidrock": `https://vidrock.net/movie/${movieId}?download=false`,
   "videasy": `https://player.videasy.net/movie/${movieId}`,
   "111movies": `https://111movies.com/movie/${movieId}`,
   "moviesapi.to": `https://moviesapi.to/movie/${movieId}`,
