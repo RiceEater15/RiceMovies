@@ -1,86 +1,102 @@
 const params = new URLSearchParams(window.location.search);
-const movieId = params.get("id");
-const title = decodeURIComponent(params.get("title") || "");
-const poster = decodeURIComponent(params.get("poster") || "");
-const overview = decodeURIComponent(params.get("overview") || "");
-const release = decodeURIComponent(params.get("release") || "");
+const movieId = params.get('id');
+const title = decodeURIComponent(params.get('title') || '');
+const poster = decodeURIComponent(params.get('poster') || '');
+const overview = decodeURIComponent(params.get('overview') || '');
+const release = decodeURIComponent(params.get('release') || '');
 
-document.getElementById("movieTitle").textContent = title;
-document.getElementById("movieTitleText").textContent = title;
-document.getElementById("moviePoster").src = poster;
-document.getElementById("moviePoster").alt = title;
-document.getElementById("releaseDate").textContent = release || "Unknown";
-document.getElementById("movieOverview").textContent =
-  overview || "No overview available.";
+// Fill page content
+document.getElementById('movieTitle').textContent = title;
+document.getElementById('movieTitleText').textContent = title;
+document.getElementById('moviePoster').src = poster;
+document.getElementById('moviePoster').alt = title;
+document.getElementById('movieOverview').textContent = overview || 'No overview available.';
 
+// Meta chips
+const metaEl = document.getElementById('movieMeta');
+if (release) metaEl.innerHTML += `<span class="meta-chip"><i class="bi bi-calendar3"></i> ${release}</span>`;
+metaEl.innerHTML += `<span class="meta-chip"><i class="bi bi-film"></i> Movie</span>`;
+
+// Sources
 const sources = {
-  "2embed.cc": `https://www.2embed.cc/embed/${movieId}`,
-  "vidrock": `https://vidrock.net/movie/${movieId}?download=false`,
-  "videasy": `https://player.videasy.net/movie/${movieId}`,
-  "111movies": `https://111movies.com/movie/${movieId}`,
-  "moviesapi.to": `https://moviesapi.to/movie/${movieId}`,
-  "embed.su": `https://embed.su/embed/movie/${movieId}`,
-  "multiembed.mov": `https://multiembed.mov/directstream.php?video_id=${movieId}&tmdb=1`,
-  "vidlinks": `https://vidlink.pro/movie/${movieId}`,
-  "123embed": `https://play2.123embed.net/movie/${movieId}`,
+  'Primary':   `https://vidrock.net/movie/${movieId}?download=false`,
+  'Secondary': `https://www.2embed.cc/embed/${movieId}`,
+  'Videasy':   `https://player.videasy.net/movie/${movieId}`,
+  'Tertiary':  `https://111movies.com/movie/${movieId}`,
+  'Backup':    `https://moviesapi.to/movie/${movieId}`,
+  'Embed.su':  `https://embed.su/embed/movie/${movieId}`,
+  'MultiEmbed':`https://multiembed.mov/directstream.php?video_id=${movieId}&tmdb=1`,
+  'VidLinks':  `https://vidlink.pro/movie/${movieId}`,
+  '123Embed':  `https://play2.123embed.net/movie/${movieId}`,
 };
 
-const serverSelect = document.getElementById("serverSelect");
-const player = document.getElementById("player");
+const player = document.getElementById('player');
+const pillsContainer = document.getElementById('serverPills');
 
-function updatePlayerSource() {
-  const selectedServer = serverSelect.value;
-  player.src = sources[selectedServer] || "";
-}
-
-serverSelect.addEventListener("change", () => {
-  updatePlayerSource();
+Object.entries(sources).forEach(([label], i) => {
+  const pill = document.createElement('button');
+  pill.className = 'server-pill' + (i === 0 ? ' active' : '');
+  pill.textContent = label;
+  pill.onclick = () => {
+    document.querySelectorAll('.server-pill').forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+    player.src = sources[label];
+  };
+  pillsContainer.appendChild(pill);
 });
 
-updatePlayerSource();
+// Load first source
+player.src = sources['Primary'];
 
-const toggleCast = document.getElementById("toggleCast");
-const actorsContainer = document.getElementById("actors");
+// Download
+document.getElementById('downloadBtn').onclick = () => window.open(`https://dl.vidsrc.vip/movie/${movieId}`, '_blank');
 
-toggleCast.addEventListener("click", () => {
-  const isVisible = actorsContainer.style.display !== "none";
-  actorsContainer.style.display = isVisible ? "none" : "grid";
-  toggleCast.textContent = isVisible ? "Show Cast" : "Hide Cast";
-  toggleCast.setAttribute("aria-expanded", !isVisible);
-});
+// Favorites
+const favBtn = document.getElementById('favBtn');
+let favs = JSON.parse(localStorage.getItem('favorites')) || [];
+const isFav = () => favs.some(f => f.id === parseInt(movieId));
 
-fetch(
-  `https://api.themoviedb.org/3/movie/${movieId}/credits?api_key=1070730380f5fee0d87cf0382670b255`
-)
-  .then((res) => res.json())
-  .then((data) => {
-    const cast = data.cast?.slice(0, 10) || [];
-    if (cast.length === 0) {
-      actorsContainer.innerHTML = "<em>No cast information available.</em>";
-      return;
-    }
-    actorsContainer.innerHTML = cast
-      .map(
-        (actor) => `
-      <div class="actor-card" tabindex="0" aria-label="${actor.name} as ${actor.character}">
-        <img
-          src="https://image.tmdb.org/t/p/w185${actor.profile_path}"
-          alt="${actor.name}"
-          onerror="this.src='https://via.placeholder.com/185x278?text=No+Image'"
-        />
-        <div class="actor-info">
-          <h5>${actor.name}</h5>
-          <p>${actor.character}</p>
-        </div>
+const updateFavBtn = () => {
+  favBtn.innerHTML = isFav()
+    ? '<i class="bi bi-heart-fill" style="color:#e50914"></i> In Favorites'
+    : '<i class="bi bi-heart"></i> Add to Favorites';
+};
+updateFavBtn();
+
+favBtn.onclick = () => {
+  if (isFav()) favs = favs.filter(f => f.id !== parseInt(movieId));
+  else favs.push({ id: parseInt(movieId), title, poster, type: 'movie' });
+  localStorage.setItem('favorites', JSON.stringify(favs));
+  updateFavBtn();
+};
+
+// Cast (lazy load)
+const toggleCast = document.getElementById('toggleCast');
+const actorsEl = document.getElementById('actors');
+let castLoaded = false;
+
+toggleCast.onclick = () => {
+  const visible = actorsEl.style.display !== 'none';
+  actorsEl.style.display = visible ? 'none' : 'grid';
+  toggleCast.textContent = visible ? 'Show Cast' : 'Hide Cast';
+  if (!castLoaded) loadCast();
+};
+
+async function loadCast() {
+  castLoaded = true;
+  actorsEl.innerHTML = '<em style="color:var(--muted)">Loading…</em>';
+  try {
+    const res = await fetch(`https://api.themoviedb.org/3/movie/${movieId}/credits?api_key=1070730380f5fee0d87cf0382670b255`);
+    const data = await res.json();
+    const cast = (data.cast || []).slice(0, 12);
+    if (!cast.length) { actorsEl.innerHTML = '<em style="color:var(--muted)">No cast info.</em>'; return; }
+    actorsEl.innerHTML = cast.map(a => `
+      <div class="actor-card">
+        <img src="${a.profile_path ? 'https://image.tmdb.org/t/p/w185' + a.profile_path : 'https://placehold.co/185x278/222/666?text=?'}" alt="${a.name}" loading="lazy" />
+        <div class="actor-info"><h5>${a.name}</h5><p>${a.character}</p></div>
       </div>
-    `
-      )
-      .join("");
-  })
-  .catch(() => {
-    actorsContainer.innerHTML = "<em>Failed to load cast information.</em>";
-  });
-document.getElementById("download").addEventListener("click", () => {
-  const link = `https://dl.vidsrc.vip/movie/${movieId}`;
-  window.open(link, "_blank");
-});
+    `).join('');
+  } catch {
+    actorsEl.innerHTML = '<em style="color:var(--muted)">Failed to load cast.</em>';
+  }
+}

@@ -2,32 +2,118 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>RiceMovies V1</title>
+  <title>Downloads - RiceMovies</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="css/common.css">
   <link rel="stylesheet" href="css/index.css">
-  <link rel="stylesheet" href="css/downloads.css">
 </head>
 <body>
-  <div class="navbar">
-    <a href="index.html"><div class="title">RiceMovies</div></a>
-    <div>
-      <a href="index.html" class="active">Discover</a>
-      <a href="favorite.html" class="active">Favorites</a>
-      <a href="downloads.html" class="active">Configuations Downloads</a>
+
+  <nav class="navbar scrolled">
+    <div class="navbar-left">
+      <a href="index.html" class="nav-logo">RiceMovies</a>
+      <div class="nav-links">
+        <a href="index.html">Discover</a>
+        <a href="favorite.html">Favorites</a>
+        <a href="downloads.html" class="active">Downloads</a>
+      </div>
     </div>
-  </div>
-  <div class="glass-box">
-    <h2>ios App Download</h2>
-    <button class="download-button">
-            <a href="Other/ricemovies.mobileconfig">Download iOS App</a>
+    <div class="navbar-right"></div>
+  </nav>
+
+  <div class="content-wrap" style="padding-top: 100px; max-width: 680px; margin: 0 auto;">
+    <h2 style="font-size:1.6rem; font-weight:700; margin-bottom:32px;">
+      ⚙️ Configuration Downloads
+    </h2>
+
+    <!-- iOS App -->
+    <div style="
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px 32px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      transition: border-color 0.2s;
+    " onmouseover="this.style.borderColor='rgba(255,255,255,0.18)'" 
+       onmouseout="this.style.borderColor='var(--border)'">
+      <div>
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+          <i class="bi bi-apple" style="font-size:1.4rem; color:var(--text);"></i>
+          <h3 style="font-size:1.1rem; font-weight:700; margin:0;">iOS App</h3>
+        </div>
+        <p style="color:var(--muted); font-size:0.875rem; margin:0;">
+          Install RiceMovies as a native app on your iPhone or iPad via a mobile configuration profile.
+        </p>
+      </div>
+      <a href="Other/ricemovies.mobileconfig" style="flex-shrink:0;">
+        <button style="
+          display: flex; align-items: center; gap: 8px;
+          background: white; color: #000;
+          font-family: var(--font); font-weight: 700; font-size: 0.9rem;
+          padding: 10px 20px; border-radius: 6px;
+          border: none; cursor: pointer;
+          transition: background 0.2s, transform 0.1s;
+          white-space: nowrap;
+        " onmouseover="this.style.background='rgba(255,255,255,0.85)'; this.style.transform='scale(1.02)'"
+           onmouseout="this.style.background='white'; this.style.transform='scale(1)'">
+          <i class="bi bi-download"></i> Download
         </button>
-  </div>
-  <div class="glass-box">
-    <h2>ios Ad Blocker</h2>
-     <button class="download-button">
-            <a href="Other/adblocker.mobileconfig">Download iOS App</a>
+      </a>
+    </div>
+
+    <!-- iOS Ad Blocker -->
+    <div style="
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px 32px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      transition: border-color 0.2s;
+    " onmouseover="this.style.borderColor='rgba(255,255,255,0.18)'"
+       onmouseout="this.style.borderColor='var(--border)'">
+      <div>
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+          <i class="bi bi-shield-check" style="font-size:1.4rem; color:var(--red);"></i>
+          <h3 style="font-size:1.1rem; font-weight:700; margin:0;">iOS Ad Blocker</h3>
+        </div>
+        <p style="color:var(--muted); font-size:0.875rem; margin:0;">
+          Block intrusive ads across Safari and apps with this mobile configuration profile.
+        </p>
+      </div>
+      <a href="Other/adblocker.mobileconfig" style="flex-shrink:0;">
+        <button style="
+          display: flex; align-items: center; gap: 8px;
+          background: var(--red); color: white;
+          font-family: var(--font); font-weight: 700; font-size: 0.9rem;
+          padding: 10px 20px; border-radius: 6px;
+          border: none; cursor: pointer;
+          transition: background 0.2s, transform 0.1s;
+          white-space: nowrap;
+        " onmouseover="this.style.background='var(--red-dark)'; this.style.transform='scale(1.02)'"
+           onmouseout="this.style.background='var(--red)'; this.style.transform='scale(1)'">
+          <i class="bi bi-download"></i> Download
         </button>
+      </a>
+    </div>
+
   </div>
+
+  <script>
+    const navbar = document.querySelector('.navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 10);
+    });
+  </script>
+</body>
+</html>
