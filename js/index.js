@@ -288,7 +288,8 @@ function scrollRow(id, dir) {
 }
 
 async function fetchEndpoint(endpoint) {
-  const res = await fetch(`https://api.themoviedb.org/3/${endpoint}?api_key=${apiKey}&language=en-US`);
+  const separator = endpoint.includes('?') ? '&' : '?';
+  const res = await fetch(`https://api.themoviedb.org/3/${endpoint}${separator}api_key=${apiKey}&language=en-US`);
   const data = await res.json();
   return data.results || [];
 }
