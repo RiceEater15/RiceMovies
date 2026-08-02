@@ -59,6 +59,30 @@ function clearSearch() {
   heroEl.style.display = '';
   const panel = document.getElementById('genrePanel');
   if (panel) panel.querySelectorAll('.genre-chip').forEach(c => c.classList.remove('active'));
+  currentView = { mode: null, query: '', type: '', genreId: '', genreName: '', page: 1, totalPages: 1, loading: false };
+}
+
+// Tracks whatever is currently shown in #searchResultsPane (a text search or a
+// genre browse) so infinite scroll knows what to fetch more of, and which page it's on.
+let currentView = { mode: null, query: '', type: '', genreId: '', genreName: '', page: 1, totalPages: 1, loading: false };
+
+window.addEventListener('scroll', () => {
+  if (!searchResultsPane.classList.contains('visible')) return;
+  if (currentView.loading || currentView.page >= currentView.totalPages) return;
+  const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 500;
+  if (!nearBottom) return;
+  currentView.page++;
+  if (currentView.mode === 'search') loadSearchPage(false);
+  else if (currentView.mode === 'genre') loadGenrePage(false);
+}, { passive: true });
+
+function showLoadMoreIndicator(grid) {
+  const el = document.createElement('p');
+  el.id = 'loadMoreIndicator';
+  el.style.cssText = 'grid-column:1/-1; color:var(--muted); text-align:center; padding:20px;';
+  el.textContent = 'Loading more...';
+  grid.appendChild(el);
+  return el;
 }
 
 async function handleSearch(query) {
@@ -67,16 +91,32 @@ async function handleSearch(query) {
   heroEl.style.display = 'none';
   searchResultsPane.classList.add('visible');
 
-  const res = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${apiKey}&query=${encodeURIComponent(query)}&language=en-US`);
-  const data = await res.json();
+  currentView = { mode: 'search', query, type: '', genreId: '', genreName: '', page: 1, totalPages: 1, loading: false };
+
   const grid = document.getElementById('searchGrid');
   grid.innerHTML = '';
-  const items = data.results.filter(r => r.media_type !== 'person' && r.poster_path);
-  if (!items.length) {
-    grid.innerHTML = `<p style="color:var(--muted); grid-column:1/-1">No results for "${query}"</p>`;
-    return;
+  await loadSearchPage(true);
+}
+
+async function loadSearchPage(isFirst) {
+  if (currentView.loading) return;
+  currentView.loading = true;
+  const grid = document.getElementById('searchGrid');
+  const loadingEl = isFirst ? null : showLoadMoreIndicator(grid);
+
+  const res = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${apiKey}&query=${encodeURIComponent(currentView.query)}&language=en-US&page=${currentView.page}`);
+  const data = await res.json();
+  currentView.totalPages = data.total_pages || 1;
+
+  if (loadingEl) loadingEl.remove();
+
+  const items = (data.results || []).filter(r => r.media_type !== 'person' && r.poster_path);
+  if (isFirst && !items.length) {
+    grid.innerHTML = `<p style="color:var(--muted); grid-column:1/-1">No results for "${currentView.query}"</p>`;
+  } else {
+    items.forEach(item => { const c = createCard(item); if (c) grid.appendChild(c); });
   }
-  items.forEach(item => { const c = createCard(item); if (c) grid.appendChild(c); });
+  currentView.loading = false;
 }
 
 // ── GENRES ──
@@ -106,6 +146,9 @@ function buildGenreUI() {
         border-radius:10px; padding:16px; width:300px; max-height:70vh; overflow-y:auto; z-index:999;
         display:none; box-shadow:0 10px 30px rgba(0,0,0,.6); }
       .genre-panel.open { display:block; }
+      .genre-filter-input { width:100%; box-sizing:border-box; background:#0d0d0d; border:1px solid #333;
+        border-radius:6px; color:#fff; padding:8px 10px; font-size:.85rem; margin-bottom:6px; outline:none; }
+      .genre-filter-input:focus { border-color:#e50914; }
       .genre-panel h4 { color:#aaa; font-size:.75rem; text-transform:uppercase; letter-spacing:.05em;
         margin:12px 0 8px; }
       .genre-panel h4:first-child { margin-top:0; }
@@ -141,6 +184,7 @@ function buildGenreUI() {
     document.body.appendChild(panel);
   }
   panel.innerHTML = `
+    <input type="text" id="genreFilterInput" class="genre-filter-input" placeholder="Search genres..." autocomplete="off" />
     <h4>Movies</h4>
     <div class="genre-chip-list">
       ${movieGenres.map(g => `<div class="genre-chip" data-type="movie" data-id="${g.id}">${g.name}</div>`).join('')}
@@ -151,9 +195,30 @@ function buildGenreUI() {
     </div>
   `;
 
+  const filterInput = panel.querySelector('#genreFilterInput');
+  filterInput.addEventListener('click', e => e.stopPropagation());
+  filterInput.addEventListener('input', () => {
+    const q = filterInput.value.trim().toLowerCase();
+    panel.querySelectorAll('.genre-chip-list').forEach(list => {
+      let anyVisible = false;
+      list.querySelectorAll('.genre-chip').forEach(chip => {
+        const match = chip.textContent.toLowerCase().includes(q);
+        chip.style.display = match ? '' : 'none';
+        if (match) anyVisible = true;
+      });
+      list.previousElementSibling.style.display = anyVisible ? '' : 'none';
+    });
+  });
+
   toggleBtn.onclick = e => {
     e.stopPropagation();
     panel.classList.toggle('open');
+    if (panel.classList.contains('open')) {
+      filterInput.value = '';
+      panel.querySelectorAll('.genre-chip').forEach(c => c.style.display = '');
+      panel.querySelectorAll('h4').forEach(h => h.style.display = '');
+      setTimeout(() => filterInput.focus(), 50);
+    }
   };
   document.addEventListener('click', e => {
     if (panel.classList.contains('open') && !panel.contains(e.target) && e.target !== toggleBtn) {
