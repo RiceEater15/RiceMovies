@@ -66,15 +66,21 @@ function clearSearch() {
 // genre browse) so infinite scroll knows what to fetch more of, and which page it's on.
 let currentView = { mode: null, query: '', type: '', genreId: '', genreName: '', page: 1, totalPages: 1, loading: false };
 
-window.addEventListener('scroll', () => {
+function checkInfiniteScroll() {
   if (!searchResultsPane.classList.contains('visible')) return;
   if (currentView.loading || currentView.page >= currentView.totalPages) return;
-  const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 500;
-  if (!nearBottom) return;
+
+  const winNearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 500;
+  const paneNearBottom = searchResultsPane.scrollHeight - searchResultsPane.scrollTop - searchResultsPane.clientHeight <= 500;
+  if (!winNearBottom && !paneNearBottom) return;
+
   currentView.page++;
   if (currentView.mode === 'search') loadSearchPage(false);
   else if (currentView.mode === 'genre') loadGenrePage(false);
-}, { passive: true });
+  else if (currentView.mode === 'genre-search') loadGenreSearchPage(false);
+}
+window.addEventListener('scroll', checkInfiniteScroll, { passive: true });
+searchResultsPane.addEventListener('scroll', checkInfiniteScroll, { passive: true });
 
 function showLoadMoreIndicator(grid) {
   const el = document.createElement('p');
@@ -243,28 +249,108 @@ async function browseByGenre(type, genreId, genreName) {
   searchInput.value = '';
   searchResultsPane.classList.add('visible');
 
+  currentView = { mode: 'genre', query: '', type, genreId, genreName, page: 1, totalPages: 1, loading: false };
+
   const grid = document.getElementById('searchGrid');
-  grid.innerHTML = `<p style="color:var(--muted); grid-column:1/-1">Loading ${genreName}...</p>`;
-
-  const endpoint = `discover/${type}?with_genres=${genreId}&sort_by=popularity.desc`;
-  const results = await fetchEndpoint(endpoint);
-
   grid.innerHTML = '';
+
   const heading = document.createElement('h2');
   heading.style.cssText = 'grid-column:1/-1; color:#fff; font-size:1.4rem; margin:0 0 4px; font-weight:600;';
   heading.textContent = `${genreName} ${type === 'tv' ? 'TV Shows' : 'Movies'}`;
   grid.appendChild(heading);
 
-  const items = results.filter(r => r.poster_path);
-  if (!items.length) {
-    grid.innerHTML += `<p style="color:var(--muted); grid-column:1/-1">No results found.</p>`;
-    return;
-  }
-  items.forEach(item => {
-    item.media_type = type;
-    const c = createCard(item);
-    if (c) grid.appendChild(c);
+  const searchWrap = document.createElement('div');
+  searchWrap.style.cssText = 'grid-column:1/-1; margin-bottom:6px;';
+  searchWrap.innerHTML = `<input type="text" id="genreSearchInput" placeholder="Search within ${genreName}..." autocomplete="off"
+    style="width:100%; box-sizing:border-box; background:#0d0d0d; border:1px solid #333; border-radius:6px;
+    color:#fff; padding:10px 12px; font-size:.9rem; outline:none;" />`;
+  grid.appendChild(searchWrap);
+  const genreSearchInput = searchWrap.querySelector('#genreSearchInput');
+  genreSearchInput.addEventListener('focus', () => genreSearchInput.style.borderColor = '#e50914');
+  genreSearchInput.addEventListener('blur', () => genreSearchInput.style.borderColor = '#333');
+
+  // Results (cards / "loading more" / "no results") live in here so they can be
+  // wiped and re-rendered without disturbing the heading or search box above.
+  // display:contents lets the children still act as direct items of the outer CSS grid.
+  const container = document.createElement('div');
+  container.id = 'genreResultsContainer';
+  container.style.display = 'contents';
+  grid.appendChild(container);
+
+  let genreSearchDebounce;
+  genreSearchInput.addEventListener('input', () => {
+    clearTimeout(genreSearchDebounce);
+    genreSearchDebounce = setTimeout(() => {
+      const q = genreSearchInput.value.trim();
+      document.getElementById('genreResultsContainer').innerHTML = '';
+      currentView.query = q;
+      currentView.page = 1;
+      currentView.totalPages = 1;
+      if (!q) {
+        currentView.mode = 'genre';
+        loadGenrePage(true);
+      } else {
+        currentView.mode = 'genre-search';
+        loadGenreSearchPage(true);
+      }
+    }, 350);
   });
+
+  await loadGenrePage(true);
+}
+
+async function loadGenrePage(isFirst) {
+  if (currentView.loading) return;
+  currentView.loading = true;
+  const container = document.getElementById('genreResultsContainer');
+  const loadingEl = isFirst ? null : showLoadMoreIndicator(container);
+
+  const { type, genreId, page } = currentView;
+  const res = await fetch(`https://api.themoviedb.org/3/discover/${type}?api_key=${apiKey}&language=en-US&with_genres=${genreId}&sort_by=popularity.desc&page=${page}`);
+  const data = await res.json();
+  currentView.totalPages = data.total_pages || 1;
+
+  if (loadingEl) loadingEl.remove();
+
+  const items = (data.results || []).filter(r => r.poster_path);
+  if (isFirst && !items.length) {
+    container.innerHTML += `<p style="color:var(--muted); grid-column:1/-1">No results found.</p>`;
+  } else {
+    items.forEach(item => {
+      item.media_type = type;
+      const c = createCard(item);
+      if (c) container.appendChild(c);
+    });
+  }
+  currentView.loading = false;
+}
+
+async function loadGenreSearchPage(isFirst) {
+  if (currentView.loading) return;
+  currentView.loading = true;
+  const container = document.getElementById('genreResultsContainer');
+  const loadingEl = isFirst ? null : showLoadMoreIndicator(container);
+
+  const { type, genreId, query, page } = currentView;
+  // TMDB's search endpoints don't support filtering by genre server-side, so we
+  // search by title/text and keep only results that are actually tagged with this genre.
+  const res = await fetch(`https://api.themoviedb.org/3/search/${type}?api_key=${apiKey}&language=en-US&query=${encodeURIComponent(query)}&page=${page}`);
+  const data = await res.json();
+  currentView.totalPages = data.total_pages || 1;
+
+  if (loadingEl) loadingEl.remove();
+
+  const items = (data.results || []).filter(r => r.poster_path && r.genre_ids && r.genre_ids.includes(Number(genreId)));
+  if (isFirst && !items.length) {
+    container.innerHTML += `<p style="color:var(--muted); grid-column:1/-1">No "${query}" results found in this genre.</p>`;
+  } else {
+    items.forEach(item => {
+      item.media_type = type;
+      const c = createCard(item);
+      if (c) container.appendChild(c);
+    });
+  }
+  currentView.loading = false;
 }
 
 // ── HERO ──
