@@ -57,6 +57,8 @@ function clearSearch() {
   searchResultsPane.classList.remove('visible');
   discoverContainer.style.display = '';
   heroEl.style.display = '';
+  const panel = document.getElementById('genrePanel');
+  if (panel) panel.querySelectorAll('.genre-chip').forEach(c => c.classList.remove('active'));
 }
 
 async function handleSearch(query) {
@@ -75,6 +77,129 @@ async function handleSearch(query) {
     return;
   }
   items.forEach(item => { const c = createCard(item); if (c) grid.appendChild(c); });
+}
+
+// ── GENRES ──
+let movieGenres = [], tvGenres = [];
+
+async function loadGenres() {
+  try {
+    const [mRes, tRes] = await Promise.all([
+      fetch(`https://api.themoviedb.org/3/genre/movie/list?api_key=${apiKey}&language=en-US`).then(r => r.json()),
+      fetch(`https://api.themoviedb.org/3/genre/tv/list?api_key=${apiKey}&language=en-US`).then(r => r.json())
+    ]);
+    movieGenres = mRes.genres || [];
+    tvGenres = tRes.genres || [];
+    buildGenreUI();
+  } catch (err) {
+    console.error('Failed to load genres', err);
+  }
+}
+
+function buildGenreUI() {
+  // Inject styles once (self-contained so no CSS file edits are required)
+  if (!document.getElementById('genre-filter-styles')) {
+    const style = document.createElement('style');
+    style.id = 'genre-filter-styles';
+    style.textContent = `
+      .genre-panel { position:fixed; top:64px; right:20px; background:#141414; border:1px solid #333;
+        border-radius:10px; padding:16px; width:300px; max-height:70vh; overflow-y:auto; z-index:999;
+        display:none; box-shadow:0 10px 30px rgba(0,0,0,.6); }
+      .genre-panel.open { display:block; }
+      .genre-panel h4 { color:#aaa; font-size:.75rem; text-transform:uppercase; letter-spacing:.05em;
+        margin:12px 0 8px; }
+      .genre-panel h4:first-child { margin-top:0; }
+      .genre-chip-list { display:flex; flex-wrap:wrap; gap:8px; }
+      .genre-chip { background:#232323; color:#eee; border:1px solid #333; border-radius:20px;
+        padding:6px 14px; font-size:.85rem; cursor:pointer; transition:background .2s,border-color .2s; }
+      .genre-chip:hover, .genre-chip.active { background:#e50914; border-color:#e50914; color:#fff; }
+    `;
+    document.head.appendChild(style);
+  }
+
+  // Toggle button — reuses the existing .search-toggle class so it matches
+  // the search icon's look, docked into .navbar-right before the search wrapper
+  let toggleBtn = document.getElementById('genreToggle');
+  if (!toggleBtn) {
+    toggleBtn = document.createElement('button');
+    toggleBtn.id = 'genreToggle';
+    toggleBtn.className = 'search-toggle';
+    toggleBtn.setAttribute('aria-label', 'Browse by genre');
+    toggleBtn.title = 'Browse by genre';
+    toggleBtn.innerHTML = '<i class="bi bi-collection-play"></i>';
+    const navbarRight = document.querySelector('.navbar-right');
+    const searchWrapper = document.querySelector('.search-wrapper');
+    navbarRight.insertBefore(toggleBtn, searchWrapper);
+  }
+
+  // Dropdown panel with genre chips
+  let panel = document.getElementById('genrePanel');
+  if (!panel) {
+    panel = document.createElement('div');
+    panel.id = 'genrePanel';
+    panel.className = 'genre-panel';
+    document.body.appendChild(panel);
+  }
+  panel.innerHTML = `
+    <h4>Movies</h4>
+    <div class="genre-chip-list">
+      ${movieGenres.map(g => `<div class="genre-chip" data-type="movie" data-id="${g.id}">${g.name}</div>`).join('')}
+    </div>
+    <h4>TV Shows</h4>
+    <div class="genre-chip-list">
+      ${tvGenres.map(g => `<div class="genre-chip" data-type="tv" data-id="${g.id}">${g.name}</div>`).join('')}
+    </div>
+  `;
+
+  toggleBtn.onclick = e => {
+    e.stopPropagation();
+    panel.classList.toggle('open');
+  };
+  document.addEventListener('click', e => {
+    if (panel.classList.contains('open') && !panel.contains(e.target) && e.target !== toggleBtn) {
+      panel.classList.remove('open');
+    }
+  });
+
+  panel.querySelectorAll('.genre-chip').forEach(chip => {
+    chip.onclick = () => {
+      panel.querySelectorAll('.genre-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      browseByGenre(chip.dataset.type, chip.dataset.id, chip.textContent);
+      panel.classList.remove('open');
+    };
+  });
+}
+
+async function browseByGenre(type, genreId, genreName) {
+  discoverContainer.style.display = 'none';
+  heroEl.style.display = 'none';
+  searchInputWrap.classList.remove('open');
+  searchInput.value = '';
+  searchResultsPane.classList.add('visible');
+
+  const grid = document.getElementById('searchGrid');
+  grid.innerHTML = `<p style="color:var(--muted); grid-column:1/-1">Loading ${genreName}...</p>`;
+
+  const endpoint = `discover/${type}?with_genres=${genreId}&sort_by=popularity.desc`;
+  const results = await fetchEndpoint(endpoint);
+
+  grid.innerHTML = '';
+  const heading = document.createElement('h2');
+  heading.style.cssText = 'grid-column:1/-1; color:#fff; font-size:1.4rem; margin:0 0 4px; font-weight:600;';
+  heading.textContent = `${genreName} ${type === 'tv' ? 'TV Shows' : 'Movies'}`;
+  grid.appendChild(heading);
+
+  const items = results.filter(r => r.poster_path);
+  if (!items.length) {
+    grid.innerHTML += `<p style="color:var(--muted); grid-column:1/-1">No results found.</p>`;
+    return;
+  }
+  items.forEach(item => {
+    item.media_type = type;
+    const c = createCard(item);
+    if (c) grid.appendChild(c);
+  });
 }
 
 // ── HERO ──
@@ -242,3 +367,4 @@ function goSeeMore(endpoint, name) {
 // ── INIT ──
 loadHero();
 loadCategories();
+loadGenres();
