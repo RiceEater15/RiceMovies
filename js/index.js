@@ -57,14 +57,18 @@ function clearSearch() {
   searchResultsPane.classList.remove('visible');
   discoverContainer.style.display = '';
   heroEl.style.display = '';
+  selectedGenreIds.clear();
+  selectedYear = '';
+  const yearSelect = document.getElementById('genreYearSelect');
+  if (yearSelect) yearSelect.value = '';
   const panel = document.getElementById('genrePanel');
   if (panel) panel.querySelectorAll('.genre-chip').forEach(c => c.classList.remove('active'));
-  currentView = { mode: null, query: '', type: '', genreId: '', genreName: '', page: 1, totalPages: 1, loading: false };
+  currentView = { mode: null, query: '', type: '', genreIds: [], genreNames: [], year: '', page: 1, totalPages: 1, loading: false };
 }
 
 // Tracks whatever is currently shown in #searchResultsPane (a text search or a
-// genre browse) so infinite scroll knows what to fetch more of, and which page it's on.
-let currentView = { mode: null, query: '', type: '', genreId: '', genreName: '', page: 1, totalPages: 1, loading: false };
+// genre/year browse) so infinite scroll knows what to fetch more of, and which page it's on.
+let currentView = { mode: null, query: '', type: '', genreIds: [], genreNames: [], year: '', page: 1, totalPages: 1, loading: false };
 
 function checkInfiniteScroll() {
   if (!searchResultsPane.classList.contains('visible')) return;
@@ -97,7 +101,7 @@ async function handleSearch(query) {
   heroEl.style.display = 'none';
   searchResultsPane.classList.add('visible');
 
-  currentView = { mode: 'search', query, type: '', genreId: '', genreName: '', page: 1, totalPages: 1, loading: false };
+  currentView = { mode: 'search', query, type: '', genreIds: [], genreNames: [], year: '', page: 1, totalPages: 1, loading: false };
 
   const grid = document.getElementById('searchGrid');
   grid.innerHTML = '';
@@ -125,8 +129,11 @@ async function loadSearchPage(isFirst) {
   currentView.loading = false;
 }
 
-// ── GENRES ──
+// ── GENRES + YEAR FILTER ──
 let movieGenres = [], tvGenres = [];
+let selectedGenreIds = new Set(); // multi-select, ids for whichever type tab is active
+let panelType = 'movie';          // 'movie' | 'tv'
+let selectedYear = '';            // '' = any year
 
 async function loadGenres() {
   try {
@@ -149,19 +156,28 @@ function buildGenreUI() {
     style.id = 'genre-filter-styles';
     style.textContent = `
       .genre-panel { position:fixed; top:64px; right:20px; background:#141414; border:1px solid #333;
-        border-radius:10px; padding:16px; width:300px; max-height:70vh; overflow-y:auto; z-index:999;
+        border-radius:10px; padding:16px; width:300px; max-height:80vh; overflow-y:auto; z-index:999;
         display:none; box-shadow:0 10px 30px rgba(0,0,0,.6); }
       .genre-panel.open { display:block; }
+      .genre-type-tabs { display:flex; gap:6px; margin-bottom:10px; }
+      .genre-type-tab { flex:1; background:#0d0d0d; border:1px solid #333; border-radius:6px; color:#aaa;
+        padding:7px 0; font-size:.8rem; cursor:pointer; transition:background .2s,color .2s,border-color .2s; }
+      .genre-type-tab.active { background:#e50914; border-color:#e50914; color:#fff; }
       .genre-filter-input { width:100%; box-sizing:border-box; background:#0d0d0d; border:1px solid #333;
-        border-radius:6px; color:#fff; padding:8px 10px; font-size:.85rem; margin-bottom:6px; outline:none; }
+        border-radius:6px; color:#fff; padding:8px 10px; font-size:.85rem; margin-bottom:10px; outline:none; }
       .genre-filter-input:focus { border-color:#e50914; }
-      .genre-panel h4 { color:#aaa; font-size:.75rem; text-transform:uppercase; letter-spacing:.05em;
-        margin:12px 0 8px; }
-      .genre-panel h4:first-child { margin-top:0; }
       .genre-chip-list { display:flex; flex-wrap:wrap; gap:8px; }
       .genre-chip { background:#232323; color:#eee; border:1px solid #333; border-radius:20px;
         padding:6px 14px; font-size:.85rem; cursor:pointer; transition:background .2s,border-color .2s; }
       .genre-chip:hover, .genre-chip.active { background:#e50914; border-color:#e50914; color:#fff; }
+      .genre-year-row { margin-top:14px; }
+      .genre-year-row label { display:block; color:#aaa; font-size:.75rem; text-transform:uppercase;
+        letter-spacing:.05em; margin-bottom:6px; }
+      .genre-year-row select { width:100%; box-sizing:border-box; background:#0d0d0d; border:1px solid #333;
+        border-radius:6px; color:#fff; padding:8px 10px; font-size:.85rem; outline:none; }
+      .genre-clear-btn { width:100%; margin-top:14px; background:none; border:1px solid #333; border-radius:6px;
+        color:#aaa; padding:8px 0; font-size:.8rem; cursor:pointer; transition:border-color .2s,color .2s; }
+      .genre-clear-btn:hover { border-color:#e50914; color:#fff; }
     `;
     document.head.appendChild(style);
   }
@@ -181,87 +197,149 @@ function buildGenreUI() {
     navbarRight.insertBefore(toggleBtn, searchWrapper);
   }
 
-  // Dropdown panel with genre chips
+  // Dropdown panel: type tabs, genre-name filter, multi-select chips, year select, clear button
   let panel = document.getElementById('genrePanel');
-  if (!panel) {
+  const isNewPanel = !panel;
+  if (isNewPanel) {
     panel = document.createElement('div');
     panel.id = 'genrePanel';
     panel.className = 'genre-panel';
     document.body.appendChild(panel);
   }
+
+  const thisYear = new Date().getFullYear();
+  let yearOptions = '<option value="">Any year</option>';
+  for (let y = thisYear + 1; y >= 1950; y--) yearOptions += `<option value="${y}">${y}</option>`;
+
   panel.innerHTML = `
+    <div class="genre-type-tabs">
+      <button class="genre-type-tab" data-type="movie">Movies</button>
+      <button class="genre-type-tab" data-type="tv">TV Shows</button>
+    </div>
     <input type="text" id="genreFilterInput" class="genre-filter-input" placeholder="Search genres..." autocomplete="off" />
-    <h4>Movies</h4>
-    <div class="genre-chip-list">
-      ${movieGenres.map(g => `<div class="genre-chip" data-type="movie" data-id="${g.id}">${g.name}</div>`).join('')}
+    <div class="genre-chip-list" id="genreChipList"></div>
+    <div class="genre-year-row">
+      <label for="genreYearSelect">Release year</label>
+      <select id="genreYearSelect">${yearOptions}</select>
     </div>
-    <h4>TV Shows</h4>
-    <div class="genre-chip-list">
-      ${tvGenres.map(g => `<div class="genre-chip" data-type="tv" data-id="${g.id}">${g.name}</div>`).join('')}
-    </div>
+    <button id="genreClearBtn" class="genre-clear-btn">Clear filters</button>
   `;
+
+  panel.querySelectorAll('.genre-type-tab').forEach(tab => {
+    tab.classList.toggle('active', tab.dataset.type === panelType);
+    tab.onclick = e => {
+      e.stopPropagation();
+      if (panelType === tab.dataset.type) return;
+      panelType = tab.dataset.type;
+      selectedGenreIds.clear(); // movie/tv genre ids don't correspond to the same genres
+      panel.querySelectorAll('.genre-type-tab').forEach(t => t.classList.toggle('active', t.dataset.type === panelType));
+      renderChipList();
+      scheduleGenreBrowse();
+    };
+  });
 
   const filterInput = panel.querySelector('#genreFilterInput');
   filterInput.addEventListener('click', e => e.stopPropagation());
-  filterInput.addEventListener('input', () => {
-    const q = filterInput.value.trim().toLowerCase();
-    panel.querySelectorAll('.genre-chip-list').forEach(list => {
-      let anyVisible = false;
-      list.querySelectorAll('.genre-chip').forEach(chip => {
-        const match = chip.textContent.toLowerCase().includes(q);
-        chip.style.display = match ? '' : 'none';
-        if (match) anyVisible = true;
-      });
-      list.previousElementSibling.style.display = anyVisible ? '' : 'none';
-    });
+  filterInput.addEventListener('input', applyGenreTextFilter);
+
+  const yearSelect = panel.querySelector('#genreYearSelect');
+  yearSelect.value = selectedYear;
+  yearSelect.addEventListener('click', e => e.stopPropagation());
+  yearSelect.addEventListener('change', e => {
+    selectedYear = e.target.value;
+    scheduleGenreBrowse();
   });
+
+  panel.querySelector('#genreClearBtn').onclick = e => {
+    e.stopPropagation();
+    selectedGenreIds.clear();
+    selectedYear = '';
+    yearSelect.value = '';
+    filterInput.value = '';
+    renderChipList();
+    clearSearch();
+  };
 
   toggleBtn.onclick = e => {
     e.stopPropagation();
     panel.classList.toggle('open');
-    if (panel.classList.contains('open')) {
-      filterInput.value = '';
-      panel.querySelectorAll('.genre-chip').forEach(c => c.style.display = '');
-      panel.querySelectorAll('h4').forEach(h => h.style.display = '');
-      setTimeout(() => filterInput.focus(), 50);
-    }
+    if (panel.classList.contains('open')) setTimeout(() => filterInput.focus(), 50);
   };
-  document.addEventListener('click', e => {
-    if (panel.classList.contains('open') && !panel.contains(e.target) && e.target !== toggleBtn) {
-      panel.classList.remove('open');
-    }
-  });
 
-  panel.querySelectorAll('.genre-chip').forEach(chip => {
-    chip.onclick = () => {
-      panel.querySelectorAll('.genre-chip').forEach(c => c.classList.remove('active'));
-      chip.classList.add('active');
-      browseByGenre(chip.dataset.type, chip.dataset.id, chip.textContent);
-      panel.classList.remove('open');
+  if (isNewPanel) {
+    document.addEventListener('click', e => {
+      if (panel.classList.contains('open') && !panel.contains(e.target) && e.target !== toggleBtn) {
+        panel.classList.remove('open');
+      }
+    });
+  }
+
+  renderChipList();
+}
+
+function renderChipList() {
+  const chipList = document.getElementById('genreChipList');
+  if (!chipList) return;
+  const genres = panelType === 'movie' ? movieGenres : tvGenres;
+  chipList.innerHTML = genres.map(g =>
+    `<div class="genre-chip${selectedGenreIds.has(g.id) ? ' active' : ''}" data-id="${g.id}">${g.name}</div>`
+  ).join('');
+  chipList.querySelectorAll('.genre-chip').forEach(chip => {
+    chip.onclick = e => {
+      e.stopPropagation();
+      const id = Number(chip.dataset.id);
+      if (selectedGenreIds.has(id)) selectedGenreIds.delete(id); else selectedGenreIds.add(id);
+      chip.classList.toggle('active');
+      scheduleGenreBrowse();
     };
+  });
+  applyGenreTextFilter();
+}
+
+function applyGenreTextFilter() {
+  const filterInput = document.getElementById('genreFilterInput');
+  if (!filterInput) return;
+  const q = filterInput.value.trim().toLowerCase();
+  document.querySelectorAll('#genreChipList .genre-chip').forEach(chip => {
+    chip.style.display = chip.textContent.toLowerCase().includes(q) ? '' : 'none';
   });
 }
 
-async function browseByGenre(type, genreId, genreName) {
+// Debounced so rapid clicking across several chips/year doesn't fire a fetch per click
+let genreBrowseDebounce;
+function scheduleGenreBrowse() {
+  clearTimeout(genreBrowseDebounce);
+  genreBrowseDebounce = setTimeout(() => {
+    if (selectedGenreIds.size === 0 && !selectedYear) { clearSearch(); return; }
+    const genres = panelType === 'movie' ? movieGenres : tvGenres;
+    const genreNames = genres.filter(g => selectedGenreIds.has(g.id)).map(g => g.name);
+    browseByGenres(panelType, [...selectedGenreIds], genreNames, selectedYear);
+  }, 250);
+}
+
+async function browseByGenres(type, genreIds, genreNames, year) {
   discoverContainer.style.display = 'none';
   heroEl.style.display = 'none';
   searchInputWrap.classList.remove('open');
   searchInput.value = '';
   searchResultsPane.classList.add('visible');
 
-  currentView = { mode: 'genre', query: '', type, genreId, genreName, page: 1, totalPages: 1, loading: false };
+  currentView = { mode: 'genre', query: '', type, genreIds, genreNames, year, page: 1, totalPages: 1, loading: false };
 
   const grid = document.getElementById('searchGrid');
   grid.innerHTML = '';
 
   const heading = document.createElement('h2');
   heading.style.cssText = 'grid-column:1/-1; color:#fff; font-size:1.4rem; margin:0 0 4px; font-weight:600;';
-  heading.textContent = `${genreName} ${type === 'tv' ? 'TV Shows' : 'Movies'}`;
+  const typeLabel = type === 'tv' ? 'TV Shows' : 'Movies';
+  const genrePart = genreNames.length ? genreNames.join(', ') : 'All';
+  const yearPart = year ? ` (${year})` : '';
+  heading.textContent = `${genrePart} ${typeLabel}${yearPart}`;
   grid.appendChild(heading);
 
   const searchWrap = document.createElement('div');
   searchWrap.style.cssText = 'grid-column:1/-1; margin-bottom:6px;';
-  searchWrap.innerHTML = `<input type="text" id="genreSearchInput" placeholder="Search within ${genreName}..." autocomplete="off"
+  searchWrap.innerHTML = `<input type="text" id="genreSearchInput" placeholder="Search within these results..." autocomplete="off"
     style="width:100%; box-sizing:border-box; background:#0d0d0d; border:1px solid #333; border-radius:6px;
     color:#fff; padding:10px 12px; font-size:.9rem; outline:none;" />`;
   grid.appendChild(searchWrap);
@@ -271,7 +349,6 @@ async function browseByGenre(type, genreId, genreName) {
 
   // Results (cards / "loading more" / "no results") live in here so they can be
   // wiped and re-rendered without disturbing the heading or search box above.
-  // display:contents lets the children still act as direct items of the outer CSS grid.
   const container = document.createElement('div');
   container.id = 'genreResultsContainer';
   container.style.display = 'contents';
@@ -305,8 +382,12 @@ async function loadGenrePage(isFirst) {
   const container = document.getElementById('genreResultsContainer');
   const loadingEl = isFirst ? null : showLoadMoreIndicator(container);
 
-  const { type, genreId, page } = currentView;
-  const res = await fetch(`https://api.themoviedb.org/3/discover/${type}?api_key=${apiKey}&language=en-US&with_genres=${genreId}&sort_by=popularity.desc&page=${page}`);
+  const { type, genreIds, year, page } = currentView;
+  let url = `https://api.themoviedb.org/3/discover/${type}?api_key=${apiKey}&language=en-US&sort_by=popularity.desc&page=${page}`;
+  if (genreIds.length) url += `&with_genres=${genreIds.join('|')}`; // pipe = match ANY selected genre
+  if (year) url += type === 'tv' ? `&first_air_date_year=${year}` : `&primary_release_year=${year}`;
+
+  const res = await fetch(url);
   const data = await res.json();
   currentView.totalPages = data.total_pages || 1;
 
@@ -331,18 +412,24 @@ async function loadGenreSearchPage(isFirst) {
   const container = document.getElementById('genreResultsContainer');
   const loadingEl = isFirst ? null : showLoadMoreIndicator(container);
 
-  const { type, genreId, query, page } = currentView;
-  // TMDB's search endpoints don't support filtering by genre server-side, so we
-  // search by title/text and keep only results that are actually tagged with this genre.
-  const res = await fetch(`https://api.themoviedb.org/3/search/${type}?api_key=${apiKey}&language=en-US&query=${encodeURIComponent(query)}&page=${page}`);
+  const { type, genreIds, year, query, page } = currentView;
+  let url = `https://api.themoviedb.org/3/search/${type}?api_key=${apiKey}&language=en-US&query=${encodeURIComponent(query)}&page=${page}`;
+  if (year) url += type === 'tv' ? `&first_air_date_year=${year}` : `&primary_release_year=${year}`;
+
+  const res = await fetch(url);
   const data = await res.json();
   currentView.totalPages = data.total_pages || 1;
 
   if (loadingEl) loadingEl.remove();
 
-  const items = (data.results || []).filter(r => r.poster_path && r.genre_ids && r.genre_ids.includes(Number(genreId)));
+  // TMDB search doesn't support with_genres, so filter client-side against each result's genre_ids
+  const items = (data.results || []).filter(r => {
+    if (!r.poster_path) return false;
+    if (genreIds.length && (!r.genre_ids || !r.genre_ids.some(id => genreIds.includes(id)))) return false;
+    return true;
+  });
   if (isFirst && !items.length) {
-    container.innerHTML += `<p style="color:var(--muted); grid-column:1/-1">No "${query}" results found in this genre.</p>`;
+    container.innerHTML += `<p style="color:var(--muted); grid-column:1/-1">No "${query}" results found.</p>`;
   } else {
     items.forEach(item => {
       item.media_type = type;
