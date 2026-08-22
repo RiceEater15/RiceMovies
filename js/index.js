@@ -384,7 +384,7 @@ async function loadGenrePage(isFirst) {
 
   const { type, genreIds, year, page } = currentView;
   let url = `https://api.themoviedb.org/3/discover/${type}?api_key=${apiKey}&language=en-US&sort_by=popularity.desc&page=${page}`;
-  if (genreIds.length) url += `&with_genres=${genreIds.join('|')}`; // pipe = match ANY selected genre
+  if (genreIds.length) url += `&with_genres=${genreIds.join(',')}`; // comma = must match ALL selected genres
   if (year) url += type === 'tv' ? `&first_air_date_year=${year}` : `&primary_release_year=${year}`;
 
   const res = await fetch(url);
@@ -425,7 +425,7 @@ async function loadGenreSearchPage(isFirst) {
   // TMDB search doesn't support with_genres, so filter client-side against each result's genre_ids
   const items = (data.results || []).filter(r => {
     if (!r.poster_path) return false;
-    if (genreIds.length && (!r.genre_ids || !r.genre_ids.some(id => genreIds.includes(id)))) return false;
+    if (genreIds.length && (!r.genre_ids || !genreIds.every(id => r.genre_ids.includes(id)))) return false;
     return true;
   });
   if (isFirst && !items.length) {
