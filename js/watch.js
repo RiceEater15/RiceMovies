@@ -19,7 +19,7 @@ metaEl.innerHTML += `<span class="meta-chip"><i class="bi bi-film"></i> Movie</s
 
 // Sources
 const sources = {
-  'Primary':   `https://vidrock.net/movie/${movieId}?download=false`,
+  'Primary':   `https://vidrock.to/movie/${movieId}?download=false`,
   'Secondary': `https://www.2embed.cc/embed/${movieId}`,
   'Videasy':   `https://player.videasy.net/movie/${movieId}`,
   'Tertiary':  `https://111movies.com/movie/${movieId}`,
