@@ -20,7 +20,7 @@ metaEl.innerHTML += `<span class="meta-chip"><i class="bi bi-tv"></i> TV Series<
 
 // Sources
 const buildSources = () => ({
-  'Primary':   `https://vidrock.net/tv/${showId}/${currentSeason}/${currentEpisode}?download=false`,
+  'Primary':   `https://vidrock.to/tv/${showId}/${currentSeason}/${currentEpisode}?download=false`,
   'Secondary': `https://www.2embed.cc/embedtv/${showId}&s=${currentSeason}&e=${currentEpisode}`,
   'Videasy':   `https://player.videasy.net/tv/${showId}/${currentSeason}/${currentEpisode}`,
   'Tertiary':  `https://111movies.com/tv/${showId}/${currentSeason}/${currentEpisode}`,
